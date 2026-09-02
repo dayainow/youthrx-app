@@ -7,6 +7,7 @@ export type UserConcern = '취업' | '주거' | '금융' | '마음';
 
 export interface Policy {
   id: string;
+  pill_name: string;
   title: string;
   category: string;
   description: string;

@@ -1,15 +1,18 @@
-import type { Policy, UserEmotion, UserConcern, UserState } from '../hooks/usePrescription';
+import type { Policy, UserEmotion } from '../hooks/usePrescription';
 import { Download, RefreshCw } from 'lucide-react';
+import { useRef } from 'react';
+import { toPng } from 'html-to-image';
 
 interface Props {
   policies: Policy[];
   userEmotion: UserEmotion | null;
-  userConcern?: UserConcern | null; // Note: passed from App if we have it, or we can just use emotion
+  userConcern?: string | null;
   onReset: () => void;
 }
 
 export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
   const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+  const prescriptionRef = useRef<HTMLDivElement>(null);
 
   const getSymptomText = () => {
     if (userEmotion === '지쳤어') return "갓생 피로 증후군 및 에너지고갈";
@@ -28,12 +31,25 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
     return dosages[idx % dosages.length];
   };
 
+  const handleDownload = async () => {
+    if (prescriptionRef.current === null) return;
+    try {
+      const dataUrl = await toPng(prescriptionRef.current, { cacheBust: true, pixelRatio: 2 });
+      const link = document.createElement('a');
+      link.download = '청년처방전.png';
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Failed to download image', err);
+    }
+  };
+
   return (
     <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-20">
       <div className="flex-1 overflow-y-auto pb-4 scrollbar-hide flex justify-center animate-slide-up">
         
         {/* Authentic Korean Prescription Form (처방전) */}
-        <div className="bg-white text-[#111] w-full max-w-[340px] shadow-[0_10px_40px_rgba(0,0,0,0.1)] h-fit border border-[#D3D3D3] relative overflow-hidden flex flex-col font-sans">
+        <div ref={prescriptionRef} className="bg-white text-[#111] w-full max-w-[340px] shadow-[0_10px_40px_rgba(0,0,0,0.1)] h-fit border border-[#D3D3D3] relative overflow-hidden flex flex-col font-sans">
           
           {/* Header */}
           <div className="text-center pt-8 pb-4 border-b-2 border-black relative">
@@ -88,23 +104,32 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
 
             <div className="space-y-4">
               {policies.map((policy, idx) => (
-                <a 
-                  key={policy.id}
-                  href={policy.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block bg-white border border-[#E0E0E0] p-3 rounded-sm shadow-sm hover:border-[#2C3E50] transition-colors"
-                >
-                  <div className="flex items-start mb-1.5">
-                    <div className="bg-[#2C3E50] text-white text-[9px] px-1.5 py-0.5 rounded-sm mr-2 font-bold whitespace-nowrap mt-0.5">
-                      {policy.category}
+                  <a 
+                    key={policy.id}
+                    href={policy.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block bg-white border border-[#E0E0E0] p-3 rounded-sm shadow-sm hover:border-indigo-600 transition-colors group"
+                  >
+                    <div className="flex items-start mb-1.5">
+                      <div className="bg-gray-900 text-white text-[9px] px-1.5 py-0.5 rounded-sm mr-2 font-bold whitespace-nowrap mt-0.5">
+                        {policy.category}
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-[14px] font-bold text-indigo-600 leading-tight mb-0.5 group-hover:underline">
+                          {policy.pill_name}
+                        </div>
+                        <div className="text-[12px] font-bold text-gray-900 leading-tight">
+                          {policy.title}
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-[13px] font-bold text-[#111] leading-tight flex-1 underline decoration-gray-300 underline-offset-2">
-                      {policy.title}
-                    </div>
-                  </div>
-                  <div className="text-[11px] text-[#555] font-medium flex items-start space-x-1 pl-[1px]">
+                  <div className="text-[11px] text-gray-600 font-medium flex items-start space-x-1 pl-[1px]">
                     <span className="text-[#E74C3C] text-[10px] mt-[1px]">▶</span>
+                    <span className="leading-snug">{policy.description}</span>
+                  </div>
+                  <div className="text-[11px] text-gray-500 font-medium flex items-start space-x-1 pl-[1px] mt-1">
+                    <span className="text-gray-400 text-[10px] mt-[1px]">⏰</span>
                     <span className="leading-snug">{getDosageText(idx)}</span>
                   </div>
                 </a>
@@ -139,13 +164,14 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
       <div className="flex space-x-3 mt-2">
         <button 
           onClick={onReset} 
-          className="flex-1 bg-white border border-[#E8E1D5] text-[#2C3E50] font-bold py-4 px-4 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-sm active:scale-[0.98]"
+          className="flex-1 bg-white border border-gray-200 text-gray-900 font-bold py-4 px-4 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-sm active:scale-[0.98]"
         >
           <RefreshCw className="w-4 h-4" />
           <span className="text-sm">다시 진단하기</span>
         </button>
         <button 
-          className="flex-[2] bg-[#2C3E50] text-white font-bold py-4 px-4 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-md active:scale-[0.98]"
+          onClick={handleDownload}
+          className="flex-[2] bg-gray-900 text-white font-bold py-4 px-4 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-md active:scale-[0.98]"
         >
           <Download className="w-4 h-4" />
           <span className="text-sm">처방전 저장</span>
