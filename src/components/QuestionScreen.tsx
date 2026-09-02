@@ -60,60 +60,60 @@ export const QuestionScreen = ({ step, userEmotion, setUserEmotion, setUserState
   ];
 
   return (
-    <div className="p-6 sm:p-8 flex-1 flex flex-col animate-slide-up relative z-20">
+    <div className="p-6 sm:p-8 flex-1 flex flex-col relative z-20">
       
-      <div className="w-full bg-white/10 rounded-full h-1.5 mb-8 mt-2">
+      <div className="w-full bg-[#E8E1D5] rounded-full h-2 mb-8 mt-2 overflow-hidden shadow-inner">
         <div 
-          className="bg-white h-1.5 rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(255,255,255,0.5)]" 
+          className="bg-[#D35400] h-full transition-all duration-700 ease-out" 
           style={{ width: `${getProgress()}%` }}
         ></div>
       </div>
 
-      <div className="text-center mb-8">
-        <h3 className="text-2xl font-light text-white mb-3 tracking-tight">
+      <div className="text-center mb-8 animate-fade-in">
+        <h3 className="text-2xl font-bold text-[#2C3E50] mb-3 tracking-tight break-keep">
           {step === 2 && '오늘 하루, 어땠나요?'}
-          {step === 3 && '지금 널 가장 괴롭히는 건 뭐야?'}
-          {step === 4 && '너의 이야기를 조금 더 들려줘.'}
+          {step === 3 && '지금 가장 무겁게 느껴지는 짐은?'}
+          {step === 4 && '당신의 이야기를 들려주세요.'}
         </h3>
-        <p className="text-xs text-white/50 font-light">
-          {step === 2 && '솔직한 지금의 기분을 선택해 주세요'}
-          {step === 3 && '가장 무겁게 느껴지는 짐을 골라주세요'}
-          {step === 4 && '당신에게 딱 맞는 맞춤형 처방을 위해 필요해요'}
+        <p className="text-sm text-[#7F8C8D]">
+          {step === 2 && '솔직한 기분을 선택해 주세요'}
+          {step === 3 && '가장 큰 고민거리를 골라주세요'}
+          {step === 4 && '맞춤형 처방을 위해 필요해요'}
         </p>
       </div>
 
       {step === 2 && (
-        <div className="grid grid-cols-2 gap-3 flex-1 overflow-y-auto pb-4 scrollbar-hide">
-          {emotions.map(({val, emoji, text, desc}) => (
+        <div className="grid grid-cols-2 gap-4 flex-1 overflow-y-auto pb-4 scrollbar-hide">
+          {emotions.map(({val, emoji, text, desc}, idx) => (
             <button 
               key={val}
               onClick={() => handleEmotionSelect(val)}
-              className="w-full bg-white/5 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] border border-white/10 rounded-3xl p-5 backdrop-blur-sm transition-all flex flex-col items-center justify-center space-y-3 shadow-sm"
+              className="w-full bg-white border border-[#E8E1D5] hover:border-[#D35400] hover:bg-[#FFFBF5] rounded-2xl p-5 transition-all flex flex-col items-center justify-center space-y-3 shadow-sm active:scale-[0.98]"
+              style={{ animation: `slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${idx * 0.1}s both` }}
             >
-              <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-3xl shadow-inner mb-2">
-                {emoji}
-              </div>
-              <div className="text-white font-medium text-sm leading-tight">{text}</div>
-              <div className="text-white/50 text-[10px] break-keep">{desc}</div>
+              <div className="text-4xl mb-1">{emoji}</div>
+              <div className="text-[#2C3E50] font-bold text-sm leading-tight">{text}</div>
+              <div className="text-[#95A5A6] text-[10px] break-keep">{desc}</div>
             </button>
           ))}
         </div>
       )}
 
       {step === 3 && (
-        <div className="flex flex-col gap-3 flex-1 overflow-y-auto pb-4 scrollbar-hide">
-          {concerns.map(({val, emoji, title, desc}) => (
+        <div className="flex flex-col gap-4 flex-1 overflow-y-auto pb-4 scrollbar-hide">
+          {concerns.map(({val, emoji, title, desc}, idx) => (
             <button 
               key={val}
               onClick={() => handleConcernSelect(val)}
-              className="w-full bg-white/5 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] border border-white/10 rounded-3xl p-5 backdrop-blur-sm transition-all flex items-center space-x-5 text-left"
+              className="w-full bg-white border border-[#E8E1D5] hover:border-[#D35400] hover:bg-[#FFFBF5] rounded-2xl p-5 transition-all flex items-center space-x-5 text-left shadow-sm active:scale-[0.98]"
+              style={{ animation: `slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${idx * 0.1}s both` }}
             >
-              <div className="w-12 h-12 shrink-0 rounded-full bg-white/10 flex items-center justify-center text-2xl shadow-inner">
+              <div className="w-12 h-12 shrink-0 rounded-full bg-[#F4EFE6] flex items-center justify-center text-2xl">
                 {emoji}
               </div>
               <div className="flex flex-col">
-                <span className="text-white/60 text-xs font-semibold mb-1">{title}</span>
-                <span className="text-white font-light text-[13px] leading-snug break-keep">{desc}</span>
+                <span className="text-[#D35400] text-xs font-bold mb-1">{title}</span>
+                <span className="text-[#2C3E50] font-medium text-[14px] leading-snug break-keep">{desc}</span>
               </div>
             </button>
           ))}
@@ -121,17 +121,18 @@ export const QuestionScreen = ({ step, userEmotion, setUserEmotion, setUserState
       )}
 
       {step === 4 && (
-        <div className="flex flex-col gap-3 flex-1 overflow-y-auto pb-4 scrollbar-hide">
-          {states.map(({val, emoji, text}) => (
+        <div className="flex flex-col gap-4 flex-1 overflow-y-auto pb-4 scrollbar-hide">
+          {states.map(({val, emoji, text}, idx) => (
             <button 
               key={val}
               onClick={() => handleStateSelect(val)}
-              className="w-full bg-white/5 hover:bg-white/20 hover:scale-[1.02] active:scale-[0.98] border border-white/10 rounded-3xl p-5 backdrop-blur-sm transition-all text-left flex items-center space-x-4"
+              className="w-full bg-white border border-[#E8E1D5] hover:border-[#D35400] hover:bg-[#FFFBF5] rounded-2xl p-5 transition-all text-left flex items-center space-x-5 shadow-sm active:scale-[0.98]"
+              style={{ animation: `slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) ${idx * 0.1}s both` }}
             >
-              <div className="w-10 h-10 shrink-0 rounded-full bg-white/10 flex items-center justify-center text-xl shadow-inner">
+              <div className="w-10 h-10 shrink-0 rounded-full bg-[#F4EFE6] flex items-center justify-center text-xl">
                 {emoji}
               </div>
-              <span className="text-white font-light text-[14px] leading-snug flex-1 break-keep">{text}</span>
+              <span className="text-[#2C3E50] font-medium text-[15px] leading-snug flex-1 break-keep">{text}</span>
             </button>
           ))}
         </div>

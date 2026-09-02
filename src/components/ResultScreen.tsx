@@ -20,18 +20,23 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
 
   return (
     <div className="p-4 flex-1 flex flex-col animate-slide-up relative z-20">
-      <div className="flex-1 overflow-y-auto pb-4 scrollbar-hide flex justify-center">
+      <div className="flex-1 overflow-y-auto pb-4 scrollbar-hide flex justify-center mt-2">
         {/* Receipt Container */}
-        <div className="bg-[#f9f9f9] text-[#111] w-full max-w-[320px] rounded-sm shadow-2xl relative p-6 font-receipt h-fit">
+        <div className="bg-[#fcfbf9] text-[#2C3E50] w-full max-w-[320px] rounded-sm shadow-xl relative p-6 font-receipt h-fit border border-[#E8E1D5]">
           {/* Jagged top edge effect */}
-          <div className="absolute -top-1 left-0 w-full h-2 bg-repeat-x" style={{ backgroundImage: 'radial-gradient(circle, #f9f9f9 4px, transparent 4px)', backgroundSize: '10px 10px', backgroundPosition: 'top -4px left 0' }}></div>
+          <div className="absolute -top-1 left-0 w-full h-2 bg-repeat-x" style={{ backgroundImage: 'radial-gradient(circle, #fcfbf9 4px, transparent 4px)', backgroundSize: '10px 10px', backgroundPosition: 'top -4px left 0' }}></div>
           
+          {/* Analog Stamp */}
+          <div className="absolute top-8 right-4 border-2 border-[#E74C3C] text-[#E74C3C] px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase rounded-sm rotate-[15deg] animate-stamp mix-blend-multiply opacity-80">
+            처방완료
+          </div>
+
           <div className="text-center mb-6 mt-2">
             <h2 className="text-3xl font-bold tracking-tighter uppercase mb-1">Youth RX</h2>
-            <p className="text-[10px] text-gray-500 uppercase tracking-widest">Mind Policy Pharmacy</p>
+            <p className="text-[10px] text-[#7F8C8D] uppercase tracking-widest">Mind Policy Pharmacy</p>
           </div>
           
-          <div className="border-b-2 border-dashed border-gray-400 pb-3 mb-3 text-[10px] flex justify-between uppercase">
+          <div className="border-b-2 border-dashed border-[#BDC3C7] pb-3 mb-3 text-[10px] flex justify-between uppercase font-bold text-[#7F8C8D]">
             <div>
               <p>DATE: {dateStr}</p>
               <p>TIME: {timeStr}</p>
@@ -43,14 +48,14 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
           </div>
 
           <div className="mb-6 text-center">
-            <h3 className="font-bold text-xs mb-2 border-b border-black pb-1 uppercase inline-block">* Prescription *</h3>
-            <p className="text-xs leading-relaxed mt-2 font-medium whitespace-pre-line">
+            <h3 className="font-bold text-xs mb-2 border-b border-[#2C3E50] pb-1 uppercase inline-block">* Prescription *</h3>
+            <p className="text-xs leading-relaxed mt-2 font-bold whitespace-pre-line break-keep font-sans">
               {getComfortMessage()}
             </p>
           </div>
 
           <div className="space-y-4 mb-6">
-            <div className="text-xs font-bold border-b border-black pb-1 uppercase">Recommended Policies</div>
+            <div className="text-xs font-bold border-b border-[#2C3E50] pb-1 uppercase">Recommended Policies</div>
             {policies.map((policy, idx) => (
               <a 
                 key={policy.id}
@@ -60,11 +65,11 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
                 className="block group"
               >
                 <div className="flex justify-between items-start text-sm font-bold">
-                  <span className="w-5">{String(idx + 1).padStart(2, '0')}</span>
-                  <span className="flex-1 leading-tight group-hover:underline pr-2">{policy.title}</span>
+                  <span className="w-5 text-[#D35400]">{String(idx + 1).padStart(2, '0')}</span>
+                  <span className="flex-1 leading-tight group-hover:underline pr-2 font-sans text-[13px]">{policy.title}</span>
                 </div>
-                <div className="flex justify-between mt-1 text-[10px] text-gray-500">
-                  <span className="ml-5">{policy.category}</span>
+                <div className="flex justify-between mt-1 text-[10px] text-[#7F8C8D]">
+                  <span className="ml-5 font-sans font-medium">{policy.category}</span>
                   <span className="underline">[LINK]</span>
                 </div>
               </a>
@@ -74,27 +79,27 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
             )}
           </div>
 
-          <div className="border-t-2 border-dashed border-gray-400 pt-4 text-center">
+          <div className="border-t-2 border-dashed border-[#BDC3C7] pt-4 text-center">
             {/* Fake Barcode */}
-            <div className="flex justify-center space-x-[2px] h-10 mb-2 overflow-hidden">
+            <div className="flex justify-center space-x-[2px] h-10 mb-2 overflow-hidden opacity-70">
                {Array.from({length: 40}).map((_, i) => (
-                 <div key={i} className="bg-black h-full" style={{ width: `${Math.max(1, Math.floor(Math.random() * 4))}px` }}></div>
+                 <div key={i} className="bg-[#2C3E50] h-full" style={{ width: `${Math.max(1, Math.floor(Math.random() * 4))}px` }}></div>
                ))}
             </div>
-            <p className="text-[10px] tracking-widest uppercase">M A P O - Y O U T H - R X</p>
+            <p className="text-[10px] tracking-widest uppercase font-bold text-[#7F8C8D]">M A P O - Y O U T H - R X</p>
           </div>
           
           {/* Jagged bottom edge effect */}
-          <div className="absolute -bottom-1 left-0 w-full h-2 bg-repeat-x" style={{ backgroundImage: 'radial-gradient(circle, #f9f9f9 4px, transparent 4px)', backgroundSize: '10px 10px', backgroundPosition: 'bottom -4px left 0' }}></div>
+          <div className="absolute -bottom-1 left-0 w-full h-2 bg-repeat-x" style={{ backgroundImage: 'radial-gradient(circle, #fcfbf9 4px, transparent 4px)', backgroundSize: '10px 10px', backgroundPosition: 'bottom -4px left 0' }}></div>
         </div>
       </div>
       
       <button 
         onClick={onReset} 
-        className="w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium py-4 px-6 rounded-full backdrop-blur-md transition-all flex items-center justify-center space-x-2 mt-4 shadow-lg"
+        className="w-full bg-[#2C3E50] hover:bg-[#34495E] text-white font-medium py-5 px-6 rounded-2xl transition-all flex items-center justify-center space-x-2 mt-4 shadow-md active:scale-[0.98]"
       >
-        <Download className="w-4 h-4" />
-        <span>Save Receipt</span>
+        <Download className="w-5 h-5" />
+        <span className="text-lg">처방전 저장하기</span>
       </button>
     </div>
   );
