@@ -25,6 +25,13 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
     return dosages[idx % dosages.length];
   };
 
+  const getSideEffectText = () => {
+    if (userEmotion === '지쳤어') return "부작용: 오늘 밤 치킨 등 야식 폭식이 유발될 수 있음. 무조건 푹 쉴 것!";
+    if (userEmotion === '우울해') return "부작용: 갑자기 감수성이 풍부해질 수 있음. 달콤한 디저트로 긴급 처방 권장.";
+    if (userEmotion === '완벽해') return "부작용: 과도한 자신감으로 주변이 피곤해질 수 있음. 적당한 릴렉스 요망!";
+    return "부작용: 잦은 멍때림이 발생할 수 있음. 오늘은 고민 내려놓고 일찍 잘 것!";
+  };
+
   const handleDownload = async () => {
     if (prescriptionRef.current === null) return;
     try {
@@ -117,12 +124,22 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
                 )}
               </div>
             </div>
+
+            {/* Precautions (Witty Side Effects) */}
+            <div className="mt-6 p-4 bg-[#F0EBE1]/60 rounded-xl border border-[#D8CFC0]">
+              <div className="text-[12px] font-bold text-[#8B4513] mb-1.5 flex items-center">
+                <span className="mr-1.5 text-sm">⚠️</span> 복용 시 주의사항
+              </div>
+              <div className="text-[13px] font-medium text-[#555] leading-relaxed break-keep">
+                {getSideEffectText()}
+              </div>
+            </div>
             
             {/* Footer */}
-            <div className="mt-8 pt-6 border-t border-dashed border-[#D8CFC0] relative flex items-center justify-center">
+            <div className="mt-6 pt-6 border-t border-dashed border-[#D8CFC0] relative flex items-center justify-center">
               <img src={mapoLogo} alt="서울청년센터 마포" className="h-7 object-contain opacity-80" />
-              {/* Red Stamp */}
-              <div className="absolute top-2 right-2 w-12 h-12 border-2 border-[#E74C3C] rounded-full flex items-center justify-center text-[#E74C3C] text-[11px] font-bold -rotate-[15deg] mix-blend-multiply opacity-70">
+              {/* Animated Red Stamp */}
+              <div className="absolute top-1 right-2 w-12 h-12 border-[2.5px] border-[#E74C3C] rounded-full flex items-center justify-center text-[#E74C3C] text-[11px] font-bold -rotate-[15deg] mix-blend-multiply opacity-0 animate-stamp z-20">
                 조제<br/>완료
               </div>
             </div>
