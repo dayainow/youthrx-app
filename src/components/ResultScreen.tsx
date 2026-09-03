@@ -1,8 +1,8 @@
-import { useRef } from 'react';
+import { useState } from 'react';
 import type { Policy, UserEmotion } from '../hooks/usePrescription';
-import { Download, RefreshCw, ChevronRight } from 'lucide-react';
-import { toPng } from 'html-to-image';
+import { RefreshCw, ChevronRight, QrCode, X } from 'lucide-react';
 import mapoLogo from '../assets/mapo_logo.png';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface Props {
   policies: Policy[];
@@ -13,7 +13,17 @@ interface Props {
 
 export const ResultScreen = ({ policies, userEmotion, userConcern, onReset }: Props) => {
   const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
-  const prescriptionRef = useRef<HTMLDivElement>(null);
+  const [showQR, setShowQR] = useState(false);
+
+  const getResultId = () => {
+    const cList = ['취업', '주거', '금융', '마음'];
+    const eList = ['완벽해', '그저 그래', '지쳤어', '우울해'];
+    const cIdx = cList.indexOf(userConcern || '마음') + 1;
+    const eIdx = eList.indexOf(userEmotion || '지쳤어') + 1;
+    return `${cIdx}${eIdx}`;
+  };
+
+  const qrUrl = `https://youthrx-result.netlify.app/${getResultId()}`;
 
   const getDosageText = (idx: number) => {
     const dosages = [
@@ -32,26 +42,12 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, onReset }: Pr
     return "부작용: 잦은 멍때림이 발생할 수 있음. 오늘은 고민 내려놓고 일찍 잘 것!";
   };
 
-  const handleDownload = async () => {
-    if (prescriptionRef.current === null) return;
-    try {
-      const dataUrl = await toPng(prescriptionRef.current, { cacheBust: true, pixelRatio: 2 });
-      const link = document.createElement('a');
-      link.download = '마음약국_약봉투.png';
-      link.href = dataUrl;
-      link.click();
-    } catch (err) {
-      console.error('Failed to download image', err);
-    }
-  };
-
   return (
     <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-20">
       <div className="flex-1 overflow-y-auto pb-6 scrollbar-hide flex justify-center animate-slide-up">
         
         {/* Authentic Korean Medicine Bag (약봉투) */}
         <div 
-          ref={prescriptionRef} 
           className="w-full max-w-[360px] h-fit relative flex flex-col font-sans"
         >
           {/* Folded Flap at the top */}
@@ -159,7 +155,7 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, onReset }: Pr
       </div>
       
       {/* Floating Action Buttons */}
-      <div className="flex space-x-3 mt-auto bg-[#F4EFE6] pt-4 pb-2 z-30">
+      <div className="flex space-x-3 mt-auto bg-[#F4EFE6] pt-4 pb-2 z-30 relative">
         <button 
           onClick={onReset} 
           className="flex-1 bg-white border border-[#E8E1D5] text-[#3E3A39] font-bold py-4 px-4 rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-sm active:scale-[0.98]"
@@ -168,13 +164,51 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, onReset }: Pr
           <span className="text-base">다시 진단</span>
         </button>
         <button 
-          onClick={handleDownload}
+          onClick={() => setShowQR(true)}
           className="flex-[2] bg-[#3E3A39] text-white font-bold py-4 px-4 rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-md hover:bg-[#2C2928] active:scale-[0.98]"
         >
-          <Download className="w-5 h-5" />
-          <span className="text-base">약봉투 저장하기</span>
+          <QrCode className="w-5 h-5" />
+          <span className="text-base">모바일로 결과 받기</span>
         </button>
       </div>
+
+      {/* QR Code Modal */}
+      {showQR && (
+        <div className="absolute inset-0 z-50 bg-[#3E3A39]/60 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
+          <div className="bg-[#FAF8F2] w-full max-w-[320px] rounded-3xl p-8 flex flex-col items-center relative shadow-2xl animate-slide-up border border-[#E8E1D5]">
+            <button 
+              onClick={() => setShowQR(false)}
+              className="absolute top-4 right-4 p-2 text-[#7F8C8D] hover:text-[#3E3A39] transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <div className="w-14 h-14 bg-[#F0EBE1] rounded-full flex items-center justify-center text-[#8B4513] mb-5 border border-[#D8CFC0]">
+              <QrCode className="w-7 h-7" />
+            </div>
+            
+            <h3 className="text-xl font-bold text-[#3E3A39] mb-2 font-serif">모바일로 결과 받기</h3>
+            <p className="text-[13px] text-[#7F8C8D] text-center mb-8 break-keep">
+              스마트폰 카메라로 아래 QR 코드를 스캔하면<br/>처방전을 기기에 저장할 수 있습니다.
+            </p>
+            
+            <div className="p-4 bg-white rounded-2xl shadow-sm border border-[#E8E1D5]">
+              <QRCodeSVG 
+                value={qrUrl}
+                size={160}
+                bgColor={"#ffffff"}
+                fgColor={"#3E3A39"}
+                level={"H"}
+                includeMargin={false}
+              />
+            </div>
+            
+            <div className="mt-8 text-[11px] font-bold tracking-widest text-[#95A5A6]">
+              TYPE-{getResultId()}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
