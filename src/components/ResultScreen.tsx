@@ -1,6 +1,6 @@
-import type { Policy, UserEmotion } from '../hooks/usePrescription';
-import { Download, RefreshCw } from 'lucide-react';
 import { useRef } from 'react';
+import type { Policy, UserEmotion } from '../hooks/usePrescription';
+import { Download, RefreshCw, ChevronRight } from 'lucide-react';
 import { toPng } from 'html-to-image';
 
 interface Props {
@@ -14,19 +14,12 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
   const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
   const prescriptionRef = useRef<HTMLDivElement>(null);
 
-  const getSymptomText = () => {
-    if (userEmotion === '지쳤어') return "갓생 피로 증후군 및 에너지고갈";
-    if (userEmotion === '우울해') return "급성 무기력증 및 일상 우울감";
-    if (userEmotion === '완벽해') return "과다 열정 증후군 (휴식 요망)";
-    return "만성 고민 증후군 및 방향 상실";
-  };
-
   const getDosageText = (idx: number) => {
     const dosages = [
-      "식후 30분, 마음이 답답할 때 1회 복용",
-      "취침 전, 생각이 많아질 때 1회 복용",
-      "스트레스 수치가 올라갈 때 즉시 투여",
-      "아침 기상 직후, 활력이 필요할 때 복용"
+      "1일 3회 / 식후 30분",
+      "1일 1회 / 취침 전",
+      "스트레스 받을 때 즉시",
+      "아침 기상 직후 1회"
     ];
     return dosages[idx % dosages.length];
   };
@@ -36,7 +29,7 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
     try {
       const dataUrl = await toPng(prescriptionRef.current, { cacheBust: true, pixelRatio: 2 });
       const link = document.createElement('a');
-      link.download = '청년처방전.png';
+      link.download = '마음약국_약봉투.png';
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -46,135 +39,111 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
 
   return (
     <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-20">
-      <div className="flex-1 overflow-y-auto pb-4 scrollbar-hide flex justify-center animate-slide-up">
+      <div className="flex-1 overflow-y-auto pb-6 scrollbar-hide flex justify-center animate-slide-up">
         
-        {/* Authentic Korean Prescription Form (처방전) */}
-        <div ref={prescriptionRef} className="bg-white text-[#111] w-full max-w-[340px] shadow-[0_10px_40px_rgba(0,0,0,0.1)] h-fit border border-[#D3D3D3] relative overflow-hidden flex flex-col font-sans">
-          
-          {/* Header */}
-          <div className="text-center pt-8 pb-4 border-b-2 border-black relative">
-            <h2 className="text-3xl font-bold tracking-[0.5em] ml-[0.5em] text-black">처방전</h2>
-            <div className="absolute top-4 right-4 border border-black text-[10px] px-1 py-0.5 tracking-wider">
-              환자보관용
-            </div>
-            <div className="absolute top-4 left-4 text-2xl text-[#E74C3C]">
-              ✚
-            </div>
+        {/* Authentic Korean Medicine Bag (약봉투) */}
+        <div 
+          ref={prescriptionRef} 
+          className="w-full max-w-[360px] h-fit relative flex flex-col font-sans"
+        >
+          {/* Folded Flap at the top */}
+          <div className="w-full h-8 bg-[#EFE9DF] rounded-t-md shadow-[0_2px_4px_rgba(0,0,0,0.05)] border-b border-[#D8CFC0] relative z-10 flex items-end px-4 pb-1">
+             <div className="w-full h-[1px] bg-[#D8CFC0] opacity-50"></div>
           </div>
 
-          {/* Form Table */}
-          <div className="flex flex-col border-b-2 border-black">
+          {/* Main Bag Body */}
+          <div className="bg-[#FAF8F2] text-[#111] shadow-[0_20px_40px_rgba(0,0,0,0.12)] border-x border-b border-[#E8E1D5] rounded-b-md p-6 relative overflow-hidden">
             
-            <div className="flex border-b border-black/20 text-xs">
-              <div className="w-[80px] bg-[#F8F9FA] border-r border-black/20 flex items-center justify-center font-bold py-3 text-center tracking-widest text-[#333]">
-                교부일자
+            {/* Subtle Texture Overlay */}
+            <div className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-multiply" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }}></div>
+
+            {/* Header */}
+            <div className="text-center mb-8 relative">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full border-2 border-[#8B4513] text-[#8B4513] mb-4">
+                <span className="text-2xl font-bold">✚</span>
               </div>
-              <div className="flex-1 px-3 py-3 font-medium text-[#222]">
-                {dateStr}
-              </div>
+              <h2 className="text-3xl font-bold tracking-tight text-[#3E3A39] mb-2 font-serif">마음약국</h2>
+              <p className="text-sm text-[#7F8C8D] tracking-wide">당신의 마음을 처방합니다</p>
             </div>
 
-            <div className="flex border-b border-black/20 text-xs">
-              <div className="w-[80px] bg-[#F8F9FA] border-r border-black/20 flex items-center justify-center font-bold py-3 text-center tracking-widest text-[#333]">
-                성<span className="text-transparent w-4 inline-block"></span>명
+            {/* Patient Info */}
+            <div className="flex justify-between items-end border-b-2 border-[#E8E1D5] pb-2 mb-6 px-1">
+              <div className="flex items-baseline space-x-2">
+                <span className="text-lg font-bold text-[#3E3A39]">마포 청년</span>
+                <span className="text-xs text-[#7F8C8D]">귀하</span>
               </div>
-              <div className="flex-1 px-3 py-3 font-medium text-[#222] flex justify-between items-center">
-                <span>마포 청년</span>
-                <span className="text-[10px] text-gray-500">(만 19~39세)</span>
-              </div>
+              <span className="text-xs font-medium text-[#7F8C8D]">{dateStr}</span>
             </div>
 
-            <div className="flex border-b border-black/20 text-xs">
-              <div className="w-[80px] bg-[#F8F9FA] border-r border-black/20 flex items-center justify-center font-bold py-3 text-center tracking-widest text-[#333]">
-                병<span className="text-transparent w-4 inline-block"></span>명
-              </div>
-              <div className="flex-1 px-3 py-3 font-bold text-[#E74C3C]">
-                {getSymptomText()}
-              </div>
-            </div>
-
-          </div>
-
-          {/* Prescription List */}
-          <div className="flex flex-col flex-1 p-4 bg-[#FAFAFA]">
-            <div className="text-[11px] font-bold mb-4 flex items-center space-x-1 text-black">
-              <span className="text-[#E74C3C]">Rx.</span>
-              <span>처방 내역 (명칭 / 용법 / 용량)</span>
-            </div>
-
-            <div className="space-y-4">
-              {policies.map((policy, idx) => (
-                  <a 
-                    key={policy.id}
-                    href={policy.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block bg-white border border-[#E0E0E0] p-3 rounded-sm shadow-sm hover:border-indigo-600 transition-colors group"
-                  >
-                    <div className="flex items-start mb-1.5">
-                      <div className="bg-gray-900 text-white text-[9px] px-1.5 py-0.5 rounded-sm mr-2 font-bold whitespace-nowrap mt-0.5">
-                        {policy.category}
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-[14px] font-bold text-indigo-600 leading-tight mb-0.5 group-hover:underline">
-                          {policy.pill_name}
+            {/* Prescription List (Toss Style) */}
+            <div className="mb-2">
+              <h3 className="font-bold text-lg text-[#3E3A39] mb-4 px-1">처방 내역</h3>
+              <div className="space-y-3">
+                {policies.map((policy, idx) => (
+                    <a 
+                      key={policy.id}
+                      href={policy.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block bg-white border border-[#E8E1D5] rounded-2xl p-4 shadow-sm hover:border-[#D35400] hover:shadow-md transition-all group active:scale-[0.98]"
+                    >
+                      <div className="flex items-center">
+                        {/* Pill Icon Placeholder */}
+                        <div className="w-12 h-12 rounded-full bg-[#FFF3E0] text-[#D35400] flex items-center justify-center text-xl mr-4 shrink-0 font-serif shadow-inner">
+                          💊
                         </div>
-                        <div className="text-[12px] font-bold text-gray-900 leading-tight">
-                          {policy.title}
+                        <div className="flex-1">
+                          <div className="text-[11px] font-bold text-[#D35400] mb-0.5">
+                            {policy.category}
+                          </div>
+                          <div className="text-[15px] font-bold text-[#3E3A39] leading-tight mb-1 group-hover:text-[#D35400] transition-colors">
+                            {policy.pill_name}
+                          </div>
+                          <div className="text-[12px] font-medium text-[#7F8C8D] flex items-center">
+                            <span className="mr-1">🕒</span> {getDosageText(idx)}
+                          </div>
+                        </div>
+                        <div className="text-[#95A5A6] group-hover:text-[#D35400] transition-colors pl-2">
+                          <ChevronRight className="w-5 h-5" />
                         </div>
                       </div>
-                    </div>
-                  <div className="text-[11px] text-gray-600 font-medium flex items-start space-x-1 pl-[1px]">
-                    <span className="text-[#E74C3C] text-[10px] mt-[1px]">▶</span>
-                    <span className="leading-snug">{policy.description}</span>
+                    </a>
+                ))}
+                {policies.length === 0 && (
+                  <div className="text-sm text-center py-10 text-[#7F8C8D] font-medium bg-white rounded-2xl border border-[#E8E1D5]">
+                    처방 가능한 내역이 없습니다.
                   </div>
-                  <div className="text-[11px] text-gray-500 font-medium flex items-start space-x-1 pl-[1px] mt-1">
-                    <span className="text-gray-400 text-[10px] mt-[1px]">⏰</span>
-                    <span className="leading-snug">{getDosageText(idx)}</span>
-                  </div>
-                </a>
-              ))}
-              {policies.length === 0 && (
-                <div className="text-xs text-center py-8 text-gray-500 font-medium">
-                  처방 가능한 내역이 없습니다.
-                </div>
-              )}
+                )}
+              </div>
             </div>
             
-            <div className="mt-8 text-center">
-              <p className="text-[10px] text-gray-500 mb-1">위와 같이 처방함.</p>
+            {/* Footer */}
+            <div className="mt-8 text-center pt-6 border-t border-dashed border-[#D8CFC0] relative">
+              <p className="text-xs text-[#7F8C8D] font-medium tracking-widest">MAPO YOUTH PHARMACY</p>
+              {/* Red Stamp */}
+              <div className="absolute top-2 right-2 w-12 h-12 border-2 border-[#E74C3C] rounded-full flex items-center justify-center text-[#E74C3C] text-[11px] font-bold -rotate-[15deg] mix-blend-multiply opacity-70">
+                조제<br/>완료
+              </div>
             </div>
           </div>
-
-          {/* Footer Signature */}
-          <div className="border-t border-black/20 p-4 flex justify-end items-center bg-white relative">
-            <div className="text-xs font-bold text-[#333] flex items-center">
-              <span className="mr-3">담당의 :</span>
-              <span className="tracking-widest">마포 마음약국</span>
-            </div>
-            {/* Red Stamp */}
-            <div className="w-10 h-10 border-2 border-red-500 rounded-full flex items-center justify-center text-red-500 text-[10px] font-bold ml-2 -rotate-[15deg] mix-blend-multiply opacity-80 shrink-0">
-              마포<br/>약국
-            </div>
-          </div>
-          
         </div>
       </div>
       
-      <div className="flex space-x-3 mt-2">
+      {/* Floating Action Buttons */}
+      <div className="flex space-x-3 mt-auto bg-[#F4EFE6] pt-4 pb-2 z-30">
         <button 
           onClick={onReset} 
-          className="flex-1 bg-white border border-gray-200 text-gray-900 font-bold py-4 px-4 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-sm active:scale-[0.98]"
+          className="flex-1 bg-white border border-[#E8E1D5] text-[#3E3A39] font-bold py-4 px-4 rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-sm active:scale-[0.98]"
         >
-          <RefreshCw className="w-4 h-4" />
-          <span className="text-sm">다시 진단하기</span>
+          <RefreshCw className="w-5 h-5" />
+          <span className="text-base">다시 진단</span>
         </button>
         <button 
           onClick={handleDownload}
-          className="flex-[2] bg-gray-900 text-white font-bold py-4 px-4 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-md active:scale-[0.98]"
+          className="flex-[2] bg-[#3E3A39] text-white font-bold py-4 px-4 rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-md hover:bg-[#2C2928] active:scale-[0.98]"
         >
-          <Download className="w-4 h-4" />
-          <span className="text-sm">처방전 저장</span>
+          <Download className="w-5 h-5" />
+          <span className="text-base">약봉투 저장하기</span>
         </button>
       </div>
     </div>
