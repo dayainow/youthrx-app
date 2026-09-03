@@ -9,7 +9,7 @@ export const Layout = ({ children }: { children: ReactNode }) => {
         <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-indigo-50/80 to-transparent pointer-events-none"></div>
         
         {/* Content Area */}
-        <div className="flex-1 flex flex-col relative z-10 w-full h-full">
+        <div className="flex-1 flex flex-col relative z-10 w-full h-full min-h-0">
           {children}
         </div>
       </div>

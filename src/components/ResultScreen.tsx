@@ -43,7 +43,7 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, onReset }: Pr
   };
 
   return (
-    <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-20">
+    <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-20 h-full min-h-0">
       <div className="flex-1 overflow-y-auto pb-6 scrollbar-hide flex justify-center animate-slide-up">
         
         {/* Authentic Korean Medicine Bag (약봉투) */}
@@ -155,7 +155,7 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, onReset }: Pr
       </div>
       
       {/* Floating Action Buttons */}
-      <div className="flex space-x-3 mt-auto bg-[#F4EFE6] pt-4 pb-2 z-30 relative">
+      <div className="flex space-x-3 mt-auto bg-[#F4EFE6] pt-4 pb-2 z-30 relative shrink-0">
         <button 
           onClick={onReset} 
           className="flex-1 bg-white border border-[#E8E1D5] text-[#3E3A39] font-bold py-4 px-4 rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-sm active:scale-[0.98]"
