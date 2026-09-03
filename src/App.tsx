@@ -1,11 +1,13 @@
+import { Routes, Route } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { IntroScreen } from './components/IntroScreen';
 import { QuestionScreen } from './components/QuestionScreen';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ResultScreen } from './components/ResultScreen';
+import { MobileResultPage } from './pages/MobileResultPage';
 import { usePrescription } from './hooks/usePrescription';
 
-function App() {
+function KioskFlow() {
   const {
     step,
     nextStep,
@@ -22,9 +24,7 @@ function App() {
 
   return (
     <Layout>
-      {step === 1 && (
-        <IntroScreen onNext={nextStep} />
-      )}
+      {step === 1 && <IntroScreen onNext={nextStep} />}
       {(step >= 2 && step <= 4) && (
         <QuestionScreen 
           step={step}
@@ -38,9 +38,7 @@ function App() {
           onPrescribe={getPrescription}
         />
       )}
-      {step === 5 && (
-        <LoadingScreen onComplete={nextStep} />
-      )}
+      {step === 5 && <LoadingScreen onComplete={nextStep} />}
       {step === 6 && (
         <ResultScreen 
           policies={prescribedPolicies}
@@ -50,6 +48,15 @@ function App() {
         />
       )}
     </Layout>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<KioskFlow />} />
+      <Route path="/:id" element={<MobileResultPage />} />
+    </Routes>
   );
 }
 

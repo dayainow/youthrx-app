@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Policy, UserEmotion } from '../hooks/usePrescription';
 import { RefreshCw, ChevronRight, QrCode, X } from 'lucide-react';
 import mapoLogo from '../assets/mapo_logo.png';
 import { QRCodeSVG } from 'qrcode.react';
+import useSound from 'use-sound';
 
 interface Props {
   policies: Policy[];
@@ -14,6 +15,19 @@ interface Props {
 export const ResultScreen = ({ policies, userEmotion, userConcern, onReset }: Props) => {
   const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
   const [showQR, setShowQR] = useState(false);
+  const [playStamp] = useSound('https://actions.google.com/sounds/v1/foley/wooden_door_shut.ogg', { volume: 0.8 });
+  const [playPaper] = useSound('https://actions.google.com/sounds/v1/foley/paper_rustle.ogg', { volume: 0.5 });
+
+  useEffect(() => {
+    // Play paper sound immediately
+    playPaper();
+    // Play stamp sound after 0.8s (matching CSS animation delay)
+    const timer = setTimeout(() => {
+      playStamp();
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [playPaper, playStamp]);
 
   const getResultId = () => {
     const cList = ['취업', '주거', '금융', '마음'];
