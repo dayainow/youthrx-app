@@ -45,6 +45,7 @@ function App() {
         <ResultScreen 
           policies={prescribedPolicies}
           userEmotion={userEmotion}
+          userConcern={userConcern}
           onReset={reset}
         />
       )}

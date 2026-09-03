@@ -11,7 +11,7 @@ interface Props {
   onReset: () => void;
 }
 
-export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
+export const ResultScreen = ({ policies, userEmotion, userConcern, onReset }: Props) => {
   const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
   const prescriptionRef = useRef<HTMLDivElement>(null);
 
@@ -133,6 +133,17 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
               <div className="text-[13px] font-medium text-[#555] leading-relaxed break-keep">
                 {getSideEffectText()}
               </div>
+            </div>
+
+            {/* Comforting Quote */}
+            <div className="mt-6 text-center px-2 relative">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-[1px] bg-[#D8CFC0] mb-4"></div>
+              <p className="mt-4 text-[13.5px] font-serif text-[#5c5655] leading-relaxed break-keep tracking-tight">
+                {userConcern === '주거' ? "내가 살아가는 곳 하나를 정하는 일도 쉽지 않죠. 앞으로 가야 할 길이 너무 멀게 느껴질 때, 잠시 기대어 쉬어도 괜찮아요." :
+                 userConcern === '금융' ? "열심히 살아왔는데도 통장을 보면 마음이 놓이지 않을 때가 있죠. 당신만의 템포로 충분히 잘하고 있으니까요." :
+                 userConcern === '취업' ? "남들 다 가는 길이 내 길이 아닐 수도 있죠. 조금 돌아가도 괜찮아요. 시작하기에 늦은 때란 없으니까요." :
+                 "아무렇지 않은 척 하루를 보내고 있지만 사실은 많이 지쳐 있었을지도 몰라요. 혼자 다 감당하지 않아도 괜찮아요."}
+              </p>
             </div>
             
             {/* Footer */}
