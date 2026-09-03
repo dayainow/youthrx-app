@@ -1,13 +1,12 @@
 import { Play, Pill } from 'lucide-react';
+import mapoLogo from '../assets/mapo_logo.png';
 
 export const IntroScreen = ({ onNext }: { onNext: () => void }) => {
   return (
     <div className="p-8 flex-1 flex flex-col items-center justify-center space-y-12 animate-fade-in relative z-20">
-      <div className="text-center space-y-4">
-        <div className="inline-block bg-indigo-50 text-indigo-600 px-3 py-1.5 font-bold text-[13px] tracking-wide rounded-full mb-2">
-          마포구 보건소 프로젝트
-        </div>
-        <h2 className="text-[2.5rem] leading-tight font-extrabold tracking-tight text-gray-900">
+      <div className="text-center space-y-4 flex flex-col items-center">
+        <img src={mapoLogo} alt="서울청년센터 마포" className="h-10 object-contain mb-2" />
+        <h2 className="text-[2.5rem] leading-tight font-extrabold tracking-tight text-gray-900 mt-2">
           마음약방<br/>처방전
         </h2>
         <p className="text-gray-500 text-[15px] leading-relaxed break-keep px-2">

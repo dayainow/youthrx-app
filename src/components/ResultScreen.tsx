@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import type { Policy, UserEmotion } from '../hooks/usePrescription';
 import { Download, RefreshCw, ChevronRight } from 'lucide-react';
 import { toPng } from 'html-to-image';
+import mapoLogo from '../assets/mapo_logo.png';
 
 interface Props {
   policies: Policy[];
@@ -118,8 +119,8 @@ export const ResultScreen = ({ policies, userEmotion, onReset }: Props) => {
             </div>
             
             {/* Footer */}
-            <div className="mt-8 text-center pt-6 border-t border-dashed border-[#D8CFC0] relative">
-              <p className="text-xs text-[#7F8C8D] font-medium tracking-widest">MAPO YOUTH PHARMACY</p>
+            <div className="mt-8 pt-6 border-t border-dashed border-[#D8CFC0] relative flex items-center justify-center">
+              <img src={mapoLogo} alt="서울청년센터 마포" className="h-7 object-contain opacity-80" />
               {/* Red Stamp */}
               <div className="absolute top-2 right-2 w-12 h-12 border-2 border-[#E74C3C] rounded-full flex items-center justify-center text-[#E74C3C] text-[11px] font-bold -rotate-[15deg] mix-blend-multiply opacity-70">
                 조제<br/>완료
