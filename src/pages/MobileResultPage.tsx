@@ -25,6 +25,24 @@ export const MobileResultPage = () => {
 
   const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
 
+  const getComfortLetter = () => {
+    switch (userConcern) {
+      case '주거': return (
+        <>내가 살아가는 공간 하나를 마련하는 일이 이토록 무겁게 느껴질 때가 있죠.<br/>매달 나가는 주거비와 독립의 여정에 지치기도 할 거예요.<br/>하지만 남들과 비교하며 너무 서두르지 않아도 괜찮습니다.<br/>당신이 안심하고 쉴 수 있는 온전한 나의 공간을 차근차근 만들어갈 수 있도록 응원할게요.</>
+      );
+      case '금융': return (
+        <>열심히 살아왔는데도 통장 잔고를 보면 마음이 덜컥 내려앉을 때가 있죠.<br/>남들은 저만치 앞서가는 것 같아 지갑만큼 마음도 공허해지곤 합니다.<br/>하지만 삶을 준비하는 속도까지 남들과 같을 필요는 없습니다.<br/>당신만의 템포로 묵묵히 걸어가는 그 단단한 길을 진심으로 지지합니다.</>
+      );
+      case '취업': return (
+        <>끝이 보이지 않는 터널 속을 혼자 걷고 있는 기분이 들 때가 있죠.<br/>수많은 거절과 불안 속에서도 오늘 하루를 묵묵히 버텨낸 당신이 정말 대견합니다.<br/>남들이 정해놓은 트랙이 아니더라도, 조금 돌아가더라도 괜찮습니다.<br/>지금의 치열한 고민들이 모여 당신만의 빛나는 방향이 되어줄 테니까요.</>
+      );
+      case '마음':
+      default: return (
+        <>아무렇지 않은 척 하루를 보냈지만, 혼자 남겨진 방 안에서 와르르 무너져 내릴 때가 있죠.<br/>버티느라 애쓰는 동안 정작 당신의 마음은 멍들어가고 있었을지도 모릅니다.<br/>이제는 괜찮은 척하지 않아도 좋습니다. 혼자 다 감당하지 않아도 괜찮아요.<br/>잠시 무거운 짐을 내려놓고 당신의 마음을 가장 먼저 돌보아 주세요.</>
+      );
+    }
+  };
+
   const getDosageText = (idx: number) => {
     const dosages = ["1일 3회 / 식후 30분", "1일 1회 / 취침 전", "스트레스 받을 때 즉시", "아침 기상 직후 1회"];
     return dosages[idx % dosages.length];
@@ -123,10 +141,11 @@ export const MobileResultPage = () => {
                           <div className="flex items-center">
                             <div className="w-12 h-12 rounded-full bg-[#FFF3E0] text-[#D35400] flex items-center justify-center text-xl mr-4 shrink-0 font-serif shadow-inner">💊</div>
                             <div className="flex-1">
-                              <div className="text-[11px] font-bold text-[#D35400] mb-0.5">{policy.category}</div>
-                              <div className="text-[15px] font-bold text-[#3E3A39] leading-tight mb-1">{policy.pill_name}</div>
-                              <div className="text-[12px] font-medium text-[#7F8C8D] flex items-center">
-                                <span className="mr-1">🕒</span> {getDosageText(idx)}
+                              <div className="text-[11px] font-bold text-[#D35400] mb-0.5">[{policy.category}] {policy.title}</div>
+                              <div className="text-[16px] font-extrabold text-[#3E3A39] leading-tight mb-1.5">{policy.pill_name}</div>
+                              <div className="text-[12px] text-[#666] mb-2.5 leading-snug break-keep line-clamp-2">{policy.description}</div>
+                              <div className="text-[11px] font-bold text-[#8B4513] flex items-center bg-[#F0EBE1]/50 w-fit px-2 py-1 rounded-md">
+                                <span className="mr-1.5 opacity-80">🕒</span> {getDosageText(idx)}
                               </div>
                             </div>
                           </div>
@@ -145,14 +164,13 @@ export const MobileResultPage = () => {
                   </div>
                 </div>
 
-                {/* Comforting Quote */}
-                <div className="mt-6 text-center px-2 relative">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-[1px] bg-[#D8CFC0] mb-4"></div>
-                  <p className="mt-4 text-[13.5px] font-serif text-[#5c5655] leading-relaxed break-keep tracking-tight">
-                    {userConcern === '주거' ? "내가 살아가는 곳 하나를 정하는 일도 쉽지 않죠. 앞으로 가야 할 길이 너무 멀게 느껴질 때, 잠시 기대어 쉬어도 괜찮아요." :
-                     userConcern === '금융' ? "열심히 살아왔는데도 통장을 보면 마음이 놓이지 않을 때가 있죠. 당신만의 템포로 충분히 잘하고 있으니까요." :
-                     userConcern === '취업' ? "남들 다 가는 길이 내 길이 아닐 수도 있죠. 조금 돌아가도 괜찮아요. 시작하기에 늦은 때란 없으니까요." :
-                     "아무렇지 않은 척 하루를 보내고 있지만 사실은 많이 지쳐 있었을지도 몰라요. 혼자 다 감당하지 않아도 괜찮아요."}
+                {/* Comforting Quote Letter */}
+                <div className="mt-8 px-5 py-6 relative bg-white/60 rounded-2xl border border-[#E8E1D5] shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FAF8F2] px-3.5 py-0.5 text-[12px] font-bold text-[#8B4513] border border-[#E8E1D5] rounded-full shadow-sm whitespace-nowrap">
+                    마음 주치의의 편지 ✉️
+                  </div>
+                  <p className="mt-2 text-[13px] font-serif text-[#4A4543] leading-[1.8] break-keep tracking-tight text-center">
+                    {getComfortLetter()}
                   </p>
                 </div>
                 
