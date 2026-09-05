@@ -26,6 +26,7 @@ export const QuestionScreen = ({ step, userEmotion, setUserEmotion, setUserState
   const [isTyping, setIsTyping] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const stepProcessed = useRef<Set<number>>(new Set());
 
   // Play a soft pop sound
   const [playPop] = useSound('https://actions.google.com/sounds/v1/ui/pop.ogg', { volume: 0.5 });
@@ -51,6 +52,10 @@ export const QuestionScreen = ({ step, userEmotion, setUserEmotion, setUserState
   };
 
   useEffect(() => {
+    // Prevent React 18 StrictMode double-execution
+    if (stepProcessed.current.has(step)) return;
+    stepProcessed.current.add(step);
+
     if (step === 2) {
       addPharmacistMessage("어서오세요, 마포 마음약국입니다.", 0);
       addPharmacistMessage("오늘 하루, 어떤 기분으로 보내셨나요?", 1200, true);
