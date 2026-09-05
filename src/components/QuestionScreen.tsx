@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import type { UserEmotion, UserState, UserConcern } from '../hooks/usePrescription';
 import { Sun, Meh, BatteryWarning, Moon, Briefcase, Home, Wallet, Heart, BookOpen, Target, Building2, Rocket, Coffee } from 'lucide-react';
 import useSound from 'use-sound';
+import mapoLogo from '../assets/mapo_logo.png';
 
 interface Props {
   step: number;
@@ -126,8 +127,8 @@ export const QuestionScreen = ({ step, userEmotion, setUserEmotion, setUserState
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
             {msg.sender === 'pharmacist' && (
-              <div className="w-8 h-8 rounded-full bg-[#8B4513] text-white flex items-center justify-center font-bold text-sm mr-2 shrink-0 shadow-sm">
-                ✚
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-2 shrink-0 shadow-sm border border-[#E8E1D5] overflow-hidden">
+                <img src={mapoLogo} alt="약사" className="w-full h-full object-contain p-1" />
               </div>
             )}
             <div 
@@ -144,8 +145,8 @@ export const QuestionScreen = ({ step, userEmotion, setUserEmotion, setUserState
         
         {isTyping && (
           <div className="flex justify-start animate-fade-in">
-            <div className="w-8 h-8 rounded-full bg-[#8B4513] text-white flex items-center justify-center font-bold text-sm mr-2 shrink-0 shadow-sm">
-              ✚
+            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-2 shrink-0 shadow-sm border border-[#E8E1D5] overflow-hidden">
+              <img src={mapoLogo} alt="약사" className="w-full h-full object-contain p-1" />
             </div>
             <div className="bg-white px-4 py-3.5 rounded-2xl rounded-tl-sm border border-[#E8E1D5] shadow-sm flex items-center space-x-1">
               <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
