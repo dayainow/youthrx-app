@@ -2,6 +2,8 @@ import { useParams } from 'react-router-dom';
 import { useRef } from 'react';
 import { Download, Share2 } from 'lucide-react';
 import { toPng } from 'html-to-image';
+  import Confetti from 'react-confetti';
+  import { useWindowSize } from 'react-use';
 import policiesData from '../data/policies.json';
 import mapoLogo from '../assets/mapo_logo.png';
 import type { Policy, UserConcern, UserEmotion } from '../hooks/usePrescription';
@@ -12,6 +14,7 @@ const eList: UserEmotion[] = ['완벽해', '그저 그래', '지쳤어', '우울
 export const MobileResultPage = () => {
   const { id } = useParams<{ id: string }>();
   const prescriptionRef = useRef<HTMLDivElement>(null);
+  const { width, height } = useWindowSize();
 
   // Decode ID
   const cIdx = id ? parseInt(id.charAt(0)) - 1 : 3;
@@ -123,7 +126,7 @@ export const MobileResultPage = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 w-full">
       <div className="bg-[#FAF8F2] text-gray-900 w-full max-w-md h-full min-h-[100dvh] shadow-xl relative overflow-y-auto flex flex-col sm:rounded-3xl sm:min-h-[800px] sm:h-[800px]">
         
-        <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-20 h-full min-h-0">
+        \n      <Confetti width={width} height={height} recycle={false} numberOfPieces={300} gravity={0.15} colors={['#E74C3C', '#F1C40F', '#3498DB', '#2ECC71', '#9B59B6']} />\n      <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-20 h-full min-h-0">
           <div className="flex-1 pb-6 flex justify-center animate-slide-up">
             
             {/* Authentic Korean Medicine Bag (약봉투) */}

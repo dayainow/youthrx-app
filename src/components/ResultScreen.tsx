@@ -4,15 +4,18 @@ import { RefreshCw, ChevronRight, QrCode, X } from 'lucide-react';
 import mapoLogo from '../assets/mapo_logo.png';
 import { QRCodeSVG } from 'qrcode.react';
 import useSound from 'use-sound';
+import Confetti from 'react-confetti';
+import { useWindowSize } from 'react-use';
 
 interface Props {
   policies: Policy[];
   userEmotion: UserEmotion | null;
   userConcern?: string | null;
+  userName: string;
   onReset: () => void;
 }
 
-export const ResultScreen = ({ policies, userEmotion, userConcern, onReset }: Props) => {
+export const ResultScreen = ({ policies, userEmotion, userConcern, userName, onReset }: Props) => {
   const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
   const [showQR, setShowQR] = useState(false);
   const [playStamp] = useSound('https://actions.google.com/sounds/v1/foley/wooden_door_shut.ogg', { volume: 0.8 });
@@ -32,12 +35,12 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, onReset }: Pr
   const getResultId = () => {
     const cList = ['취업', '주거', '금융', '마음'];
     const eList = ['완벽해', '그저 그래', '지쳤어', '우울해'];
-    const cIdx = cList.indexOf(userConcern || '마음') + 1;
-    const eIdx = eList.indexOf(userEmotion || '지쳤어') + 1;
-    return `${cIdx}${eIdx}`;
+    const cIdx = cList.indexOf(userConcern || '마음');
+    const eIdx = eList.indexOf(userEmotion || '우울해');
+    return `${cIdx + 1}${eIdx + 1}`;
   };
 
-  const qrUrl = `https://youthrx-result.netlify.app/${getResultId()}`;
+  const qrUrl = `https://youthrx-result.netlify.app/${getResultId()}?n=${encodeURIComponent(userName)}`;
 
   const getComfortLetter = () => {
     switch (userConcern) {
@@ -97,9 +100,20 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, onReset }: Pr
     return "부작용: 잦은 멍때림이 발생할 수 있음. 오늘은 고민 내려놓고 일찍 잘 것!";
   };
 
+  const { width, height } = useWindowSize();
+
   return (
-    <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-20 h-full min-h-0">
-      <div className="flex-1 overflow-y-auto pb-6 scrollbar-hide flex justify-center animate-slide-up">
+    <div className="flex-1 flex flex-col relative z-20 h-full">
+      <Confetti 
+        width={width} 
+        height={height} 
+        recycle={false} 
+        numberOfPieces={300} 
+        gravity={0.15}
+        colors={['#E74C3C', '#F1C40F', '#3498DB', '#2ECC71', '#9B59B6']}
+      />
+      
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 pb-24 scrollbar-hide flex justify-center animate-slide-up">
         
         {/* Authentic Korean Medicine Bag (약봉투) */}
         <div 
@@ -128,7 +142,7 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, onReset }: Pr
             {/* Patient Info */}
             <div className="flex justify-between items-end border-b-2 border-[#E8E1D5] pb-2 mb-6 px-1">
               <div className="flex items-baseline space-x-2">
-                <span className="text-lg font-bold text-[#3E3A39]">마포 청년</span>
+                <span className="text-lg font-bold text-[#3E3A39]">{userName}</span>
                 <span className="text-xs text-[#7F8C8D]">귀하</span>
               </div>
               <span className="text-xs font-medium text-[#7F8C8D]">{dateStr}</span>

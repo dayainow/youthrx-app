@@ -17,6 +17,7 @@ export interface Policy {
 
 export const usePrescription = () => {
   const [step, setStep] = useState<number>(1);
+  const [userName, setUserName] = useState<string>('마포 청년');
   const [userEmotion, setUserEmotion] = useState<UserEmotion | null>(null);
   const [userState, setUserState] = useState<UserState | null>(null);
   const [userConcern, setUserConcern] = useState<UserConcern | null>(null);
@@ -26,6 +27,7 @@ export const usePrescription = () => {
   const prevStep = () => setStep((s) => Math.max(1, s - 1));
   const reset = () => {
     setStep(1);
+    setUserName('마포 청년');
     setUserEmotion(null);
     setUserState(null);
     setUserConcern(null);
@@ -54,6 +56,8 @@ export const usePrescription = () => {
     nextStep,
     prevStep,
     reset,
+    userName,
+    setUserName,
     userEmotion,
     setUserEmotion,
     userState,

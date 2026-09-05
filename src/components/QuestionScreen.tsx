@@ -6,6 +6,8 @@ import mapoLogo from '../assets/mapo_logo.png';
 
 interface Props {
   step: number;
+  userName: string;
+  setUserName: (name: string) => void;
   userEmotion: UserEmotion | null;
   setUserEmotion: (emotion: UserEmotion) => void;
   userState: UserState | null;
@@ -22,10 +24,11 @@ type Message = {
   text: string;
 };
 
-export const QuestionScreen = ({ step, userEmotion, setUserEmotion, setUserState, userConcern, setUserConcern, onNext, onPrescribe }: Props) => {
+export const QuestionScreen = ({ step, userName, setUserName, userEmotion, setUserEmotion, setUserState, userConcern, setUserConcern, onNext, onPrescribe }: Props) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [tempName, setTempName] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const stepProcessed = useRef<Set<number>>(new Set());
 
@@ -59,17 +62,36 @@ export const QuestionScreen = ({ step, userEmotion, setUserEmotion, setUserState
 
     if (step === 2) {
       addPharmacistMessage("어서오세요, 마포 마음약국입니다.", 0);
-      addPharmacistMessage("오늘 하루, 어떤 기분으로 보내셨나요?", 1200, true);
+      addPharmacistMessage("처방전에 기록할 이름을 알려주시겠어요?", 1200, true);
     } else if (step === 3) {
+      setShowOptions(false);
+      addPharmacistMessage(`반갑습니다, ${userName}님.`, 500);
+      addPharmacistMessage("오늘 하루, 어떤 기분으로 보내셨나요?", 2000, true);
+    } else if (step === 4) {
       setShowOptions(false);
       addPharmacistMessage("그렇군요... 조금 지칠 수도 있는 날이었네요.", 500);
       addPharmacistMessage("지금 마음을 가장 무겁게 하는 짐은 무엇인가요?", 2000, true);
-    } else if (step === 4) {
+    } else if (step === 5) {
       setShowOptions(false);
       addPharmacistMessage("충분히 이해합니다. 혼자 고민이 많으셨겠어요.", 500);
       addPharmacistMessage("마지막으로, 당신의 현재 상황을 들려주시겠어요?", 2000, true);
     }
-  }, [step]);
+  }, [step, userName]);
+
+  const handleNameSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tempName.trim()) return;
+    if (navigator.vibrate) navigator.vibrate(50);
+    playPop();
+    setShowOptions(false);
+    
+    setMessages(prev => [...prev, { id: Math.random().toString(), sender: 'user', text: tempName }]);
+    
+    setTimeout(() => {
+      setUserName(tempName);
+      onNext();
+    }, 600);
+  };
 
   const handleOptionSelect = (type: 'emotion' | 'concern' | 'state', value: string, text: string) => {
     if (!showOptions) return;
@@ -159,7 +181,28 @@ export const QuestionScreen = ({ step, userEmotion, setUserEmotion, setUserState
 
       {/* Options Area (Bottom Fixed) */}
       <div className={`absolute bottom-0 left-0 right-0 bg-white border-t border-[#E8E1D5] p-4 transition-transform duration-500 z-30 ${showOptions ? 'translate-y-0 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]' : 'translate-y-full'}`}>
+        
         {step === 2 && (
+          <form onSubmit={handleNameSubmit} className="flex space-x-2">
+            <input 
+              type="text" 
+              value={tempName}
+              onChange={(e) => setTempName(e.target.value)}
+              placeholder="이름 또는 별명을 입력해주세요" 
+              className="flex-1 bg-[#FAF8F2] border border-[#E8E1D5] rounded-xl px-4 py-3.5 text-[#3E3A39] focus:outline-none focus:border-[#8B4513] transition-colors"
+              maxLength={10}
+            />
+            <button 
+              type="submit"
+              disabled={!tempName.trim()}
+              className="bg-[#8B4513] text-white px-6 py-3.5 rounded-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#703810] transition-colors"
+            >
+              확인
+            </button>
+          </form>
+        )}
+
+        {step === 3 && (
           <div className="grid grid-cols-1 gap-2.5 max-h-[40vh] overflow-y-auto scrollbar-hide pb-2">
             {emotions.map(({val, icon, text}) => (
               <button 
@@ -174,7 +217,7 @@ export const QuestionScreen = ({ step, userEmotion, setUserEmotion, setUserState
           </div>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <div className="grid grid-cols-1 gap-2.5 max-h-[40vh] overflow-y-auto scrollbar-hide pb-2">
             {concerns.map(({val, icon, text}) => (
               <button 
@@ -189,7 +232,7 @@ export const QuestionScreen = ({ step, userEmotion, setUserEmotion, setUserState
           </div>
         )}
 
-        {step === 4 && (
+        {step === 5 && (
           <div className="grid grid-cols-1 gap-2.5 max-h-[40vh] overflow-y-auto scrollbar-hide pb-2">
             {states.map(({val, icon, text}) => (
               <button 
