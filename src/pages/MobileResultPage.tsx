@@ -43,6 +43,29 @@ export const MobileResultPage = () => {
     }
   };
 
+  const getIngredientData = () => {
+    if (userEmotion === '우울해') return [
+      { label: '따뜻한 위로', percent: 65, color: 'bg-rose-400' },
+      { label: '실질적 해결책', percent: 25, color: 'bg-blue-400' },
+      { label: '휴식 한 스푼', percent: 10, color: 'bg-emerald-400' },
+    ];
+    if (userEmotion === '지쳤어') return [
+      { label: '절대적 휴식', percent: 55, color: 'bg-emerald-400' },
+      { label: '마음의 여유', percent: 30, color: 'bg-amber-400' },
+      { label: '실질적 해결책', percent: 15, color: 'bg-blue-400' },
+    ];
+    if (userEmotion === '완벽해') return [
+      { label: '더 큰 도약', percent: 50, color: 'bg-indigo-400' },
+      { label: '자신감 충전', percent: 30, color: 'bg-amber-400' },
+      { label: '실질적 해결책', percent: 20, color: 'bg-blue-400' },
+    ];
+    return [
+      { label: '소소한 활력', percent: 45, color: 'bg-orange-400' },
+      { label: '따뜻한 공감', percent: 35, color: 'bg-rose-400' },
+      { label: '실질적 해결책', percent: 20, color: 'bg-blue-400' },
+    ];
+  };
+
   const getDosageText = (idx: number) => {
     const dosages = ["1일 3회 / 식후 30분", "1일 1회 / 취침 전", "스트레스 받을 때 즉시", "아침 기상 직후 1회"];
     return dosages[idx % dosages.length];
@@ -140,6 +163,29 @@ export const MobileResultPage = () => {
                   <p className="mt-2 text-[14.5px] font-serif text-[#5C4D43] font-medium tracking-tight text-[#4A4543] leading-[1.8] break-keep tracking-tight text-center">
                     {getComfortLetter()}
                   </p>
+                </div>
+
+                {/* Prescription Ingredients Chart */}
+                <div className="mb-8 bg-white border border-[#E8E1D5] rounded-2xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                  <h3 className="font-bold text-[14px] text-[#3E3A39] mb-4 flex items-center tracking-tight">
+                    <span className="mr-2 text-lg">🧪</span> 맞춤 처방약 성분 분석표
+                  </h3>
+                  <div className="space-y-4">
+                    {getIngredientData().map((item, i) => (
+                      <div key={i}>
+                        <div className="flex justify-between text-[12px] font-bold text-[#666] mb-1.5 px-0.5">
+                          <span>{item.label}</span>
+                          <span>{item.percent}%</span>
+                        </div>
+                        <div className="w-full bg-[#F0EBE1] rounded-full h-2.5 overflow-hidden">
+                          <div 
+                            className={`h-2.5 rounded-full ${item.color}`}
+                            style={{ width: `${item.percent}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Prescription List */}
