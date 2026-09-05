@@ -132,6 +132,16 @@ export const MobileResultPage = () => {
                   <span className="text-xs font-medium text-[#7F8C8D]">{dateStr}</span>
                 </div>
 
+                {/* Comforting Quote Letter */}
+                <div className="mt-8 px-5 py-6 relative bg-[#FFFDF9] rounded-2xl border border-[#E2D9C8] shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FAF8F2] px-3.5 py-0.5 text-[12px] font-bold text-[#8B4513] border border-[#E8E1D5] rounded-full shadow-sm whitespace-nowrap">
+                    마음 주치의의 편지 ✉️
+                  </div>
+                  <p className="mt-2 text-[14.5px] font-serif text-[#5C4D43] font-medium tracking-tight text-[#4A4543] leading-[1.8] break-keep tracking-tight text-center">
+                    {getComfortLetter()}
+                  </p>
+                </div>
+
                 {/* Prescription List */}
                 <div className="mb-2">
                   <h3 className="font-bold text-lg text-[#3E3A39] mb-4 px-1">처방 내역</h3>
@@ -164,16 +174,6 @@ export const MobileResultPage = () => {
                   </div>
                 </div>
 
-                {/* Comforting Quote Letter */}
-                <div className="mt-8 px-5 py-6 relative bg-white/60 rounded-2xl border border-[#E8E1D5] shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FAF8F2] px-3.5 py-0.5 text-[12px] font-bold text-[#8B4513] border border-[#E8E1D5] rounded-full shadow-sm whitespace-nowrap">
-                    마음 주치의의 편지 ✉️
-                  </div>
-                  <p className="mt-2 text-[13px] font-serif text-[#4A4543] leading-[1.8] break-keep tracking-tight text-center">
-                    {getComfortLetter()}
-                  </p>
-                </div>
-                
                 {/* Footer */}
                 <div className="mt-6 pt-6 border-t border-dashed border-[#D8CFC0] relative flex items-center justify-center">
                   <img src={mapoLogo} alt="서울청년센터 마포" className="h-7 object-contain opacity-80" />
