@@ -4,6 +4,7 @@ import { toPng } from 'html-to-image';
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
 import mapoLogo from '../assets/mapo_logo.png';
+import { useInView } from '../hooks/useInView';
 import { restoreFromUrl } from '../engine/qr';
 import { ICONS } from '../engine/content';
 
@@ -21,6 +22,8 @@ export const MobileResultPage = () => {
   const comfortLetter = prescription.comfort;
 
   /** 성분 분석표 — 메인·보조 계열 점수 비율로 만든다 */
+  const chart = useInView<HTMLDivElement>();
+
   const getIngredientData = () => {
     const palette: Record<string, string> = {
       주거: 'bg-emerald-400',
@@ -148,7 +151,7 @@ export const MobileResultPage = () => {
                 </div>
 
                 {/* Prescription Ingredients Chart */}
-                <div className="mb-8 bg-white border border-[#E8E1D5] rounded-2xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                <div ref={chart.ref} className="mb-8 bg-white border border-[#E8E1D5] rounded-2xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
                   <h3 className="font-bold text-[14px] text-[#3E3A39] mb-4 flex items-center tracking-tight">
                     <span className="mr-2 text-lg">🧪</span> 맞춤 처방약 성분 분석표
                   </h3>
@@ -161,8 +164,11 @@ export const MobileResultPage = () => {
                         </div>
                         <div className="w-full bg-[#F0EBE1] rounded-full h-2.5 overflow-hidden">
                           <div 
-                            className={`h-2.5 rounded-full animate-bar ${item.color}`}
-                            style={{ width: `${item.percent}%`, animationDelay: `${i * 150}ms` }}
+                            className={`h-2.5 rounded-full transition-[width] duration-[900ms] ease-out ${item.color}`}
+                            style={{
+                              width: chart.inView ? `${item.percent}%` : '0%',
+                              transitionDelay: `${i * 150}ms`,
+                            }}
                           ></div>
                         </div>
                       </div>

@@ -1,17 +1,19 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
 @import "tailwindcss";
 
-/* 고운바탕 - https://noonnu.cc/font_page/733 (마음 주치의의 편지 전용) */
+/* 고운바탕 (SIL OFL) — 마음 주치의의 편지 전용.
+   오프라인 키오스크에서도 뜨도록 CDN 대신 로컬 번들을 쓴다.
+   원본 8.4MB 를 한글·라틴 영역만 남겨 woff2 로 서브셋했다. */
 @font-face {
   font-family: 'GowunBatang';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/GowunBatang-Regular.woff') format('woff');
+  src: url('./assets/fonts/GowunBatang-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'GowunBatang';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/GowunBatang-Bold.woff') format('woff');
+  src: url('./assets/fonts/GowunBatang-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
