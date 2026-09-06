@@ -1,7 +1,8 @@
 // @ts-nocheck
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLottie } from 'lottie-react';
 import loadingAnimation from '../assets/loading.json';
+import { CHAT } from '../engine/chatScript';
 
 export const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   const options = {
@@ -9,6 +10,16 @@ export const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
     loop: true
   };
   const { View } = useLottie(options);
+
+  // 조제 중 문구를 번갈아 보여준다 (구현안내서 3절)
+  const [lineIndex, setLineIndex] = useState(0);
+  useEffect(() => {
+    const id = setInterval(
+      () => setLineIndex((i) => (i + 1) % CHAT.loading.length),
+      1200,
+    );
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -24,11 +35,11 @@ export const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
       </div>
       
       <div className="text-center space-y-3">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 animate-pulse break-keep">
-          맞춤형 처방을 조제 중입니다...
+        <h2 className="text-xl md:text-3xl font-bold text-gray-900 break-keep px-4">
+          {CHAT.loading[lineIndex]}
         </h2>
         <p className="text-gray-500 text-sm md:text-base break-keep">
-          잠시만 기다려주세요. 당신을 위한 정책을 찾고 있어요.
+          잠시만 기다려주세요.
         </p>
       </div>
 

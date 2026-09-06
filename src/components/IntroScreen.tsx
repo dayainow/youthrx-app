@@ -1,5 +1,6 @@
-import { Play, Pill } from 'lucide-react';
+import { Play } from 'lucide-react';
 import mapoLogo from '../assets/mapo_logo.png';
+import { ICONS } from '../engine/content';
 
 export const IntroScreen = ({ onNext }: { onNext: () => void }) => {
   return (
@@ -20,7 +21,7 @@ export const IntroScreen = ({ onNext }: { onNext: () => void }) => {
       <div className="relative w-40 h-40 md:w-56 md:h-56 flex items-center justify-center md:justify-self-center">
          <div className="absolute inset-0 bg-indigo-100 rounded-full animate-pulse-slow opacity-50 blur-xl"></div>
          <div className="w-32 h-32 md:w-44 md:h-44 rounded-full flex items-center justify-center bg-white shadow-[0_16px_40px_rgba(79,70,229,0.16)] relative z-10 border border-indigo-50">
-           <Pill className="w-14 h-14 md:w-20 md:h-20 text-indigo-500" />
+           <span className="text-[3.5rem] md:text-[5rem] leading-none">{ICONS.intro}</span>
          </div>
       </div>
       

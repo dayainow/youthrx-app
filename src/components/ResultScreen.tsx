@@ -1,21 +1,23 @@
 import { useState, useEffect } from 'react';
-import type { Policy, UserEmotion } from '../hooks/usePrescription';
-import { RefreshCw, ChevronRight, QrCode, X } from 'lucide-react';
+import { RefreshCw, ChevronRight, X } from 'lucide-react';
 import mapoLogo from '../assets/mapo_logo.png';
 import { QRCodeSVG } from 'qrcode.react';
 import useSound from 'use-sound';
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
+import { buildQrUrl } from '../engine/qr';
+import { RESULT_BASE } from '../engine/config';
+import { ICONS } from '../engine/content';
+import type { Answers, Prescription } from '../engine/types';
 
 interface Props {
-  policies: Policy[];
-  userEmotion: UserEmotion | null;
-  userConcern?: string | null;
-  userName: string;
+  prescription: Prescription;
+  answers: Answers;
   onReset: () => void;
 }
 
-export const ResultScreen = ({ policies, userEmotion, userConcern, userName, onReset }: Props) => {
+export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
+  const { policies, main, sub } = prescription;
   const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
   const [showQR, setShowQR] = useState(false);
   const [playStamp] = useSound('https://actions.google.com/sounds/v1/foley/wooden_door_shut.ogg', { volume: 0.8 });
@@ -32,55 +34,29 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, userName, onR
     return () => clearTimeout(timer);
   }, [playPaper, playStamp]);
 
-  const getResultId = () => {
-    const cList = ['취업', '주거', '금융', '마음'];
-    const eList = ['완벽해', '그저 그래', '지쳤어', '우울해'];
-    const cIdx = cList.indexOf(userConcern || '마음');
-    const eIdx = eList.indexOf(userEmotion || '우울해');
-    return `${cIdx + 1}${eIdx + 1}`;
-  };
+  // QR 은 링크를 그림으로 그리는 순수 계산이라 인터넷 없이 만들어진다.
+  const qrUrl = buildQrUrl(RESULT_BASE, prescription, answers);
 
-  const qrUrl = `https://youthrx-result.netlify.app/${getResultId()}?n=${encodeURIComponent(userName)}`;
+  // 위로 문구는 엔진(계열별 문구)에서 가져온다.
+  const comfortLetter = prescription.comfort;
 
-  const getComfortLetter = () => {
-    switch (userConcern) {
-      case '주거': return (
-        <>내가 살아가는 공간 하나를 마련하는 일이 이토록 무겁게 느껴질 때가 있죠.<br/>매달 나가는 주거비와 독립의 여정에 지치기도 할 거예요.<br/>하지만 남들과 비교하며 너무 서두르지 않아도 괜찮습니다.<br/>당신이 안심하고 쉴 수 있는 온전한 나의 공간을 차근차근 만들어갈 수 있도록 응원할게요.</>
-      );
-      case '금융': return (
-        <>열심히 살아왔는데도 통장 잔고를 보면 마음이 덜컥 내려앉을 때가 있죠.<br/>남들은 저만치 앞서가는 것 같아 지갑만큼 마음도 공허해지곤 합니다.<br/>하지만 삶을 준비하는 속도까지 남들과 같을 필요는 없습니다.<br/>당신만의 템포로 묵묵히 걸어가는 그 단단한 길을 진심으로 지지합니다.</>
-      );
-      case '취업': return (
-        <>끝이 보이지 않는 터널 속을 혼자 걷고 있는 기분이 들 때가 있죠.<br/>수많은 거절과 불안 속에서도 오늘 하루를 묵묵히 버텨낸 당신이 정말 대견합니다.<br/>남들이 정해놓은 트랙이 아니더라도, 조금 돌아가더라도 괜찮습니다.<br/>지금의 치열한 고민들이 모여 당신만의 빛나는 방향이 되어줄 테니까요.</>
-      );
-      case '마음':
-      default: return (
-        <>아무렇지 않은 척 하루를 보냈지만, 혼자 남겨진 방 안에서 와르르 무너져 내릴 때가 있죠.<br/>버티느라 애쓰는 동안 정작 당신의 마음은 멍들어가고 있었을지도 모릅니다.<br/>이제는 괜찮은 척하지 않아도 좋습니다. 혼자 다 감당하지 않아도 괜찮아요.<br/>잠시 무거운 짐을 내려놓고 당신의 마음을 가장 먼저 돌보아 주세요.</>
-      );
-    }
-  };
-
+  /** 성분 분석표 — 메인·보조 계열 점수 비율로 만든다 */
   const getIngredientData = () => {
-    if (userEmotion === '우울해') return [
-      { label: '따뜻한 위로', percent: 65, color: 'bg-rose-400' },
-      { label: '실질적 해결책', percent: 25, color: 'bg-blue-400' },
-      { label: '휴식 한 스푼', percent: 10, color: 'bg-emerald-400' },
-    ];
-    if (userEmotion === '지쳤어') return [
-      { label: '절대적 휴식', percent: 55, color: 'bg-emerald-400' },
-      { label: '마음의 여유', percent: 30, color: 'bg-amber-400' },
-      { label: '실질적 해결책', percent: 15, color: 'bg-blue-400' },
-    ];
-    if (userEmotion === '완벽해') return [
-      { label: '더 큰 도약', percent: 50, color: 'bg-indigo-400' },
-      { label: '자신감 충전', percent: 30, color: 'bg-amber-400' },
-      { label: '실질적 해결책', percent: 20, color: 'bg-blue-400' },
-    ];
-    return [
-      { label: '소소한 활력', percent: 45, color: 'bg-orange-400' },
-      { label: '따뜻한 공감', percent: 35, color: 'bg-rose-400' },
-      { label: '실질적 해결책', percent: 20, color: 'bg-blue-400' },
-    ];
+    const palette: Record<string, string> = {
+      주거: 'bg-emerald-400',
+      일자리: 'bg-blue-400',
+      금융: 'bg-amber-400',
+      심리: 'bg-rose-400',
+    };
+    const total = Object.values(prescription.scores).reduce((a, b) => a + b, 0) || 1;
+    return (Object.keys(prescription.scores) as (keyof typeof prescription.scores)[])
+      .filter((k) => prescription.scores[k] > 0)
+      .sort((a, b) => prescription.scores[b] - prescription.scores[a])
+      .map((k) => ({
+        label: `${k} 처방`,
+        percent: Math.round((prescription.scores[k] / total) * 100),
+        color: palette[k],
+      }));
   };
 
   const getDosageText = (idx: number) => {
@@ -93,11 +69,19 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, userName, onR
     return dosages[idx % dosages.length];
   };
 
+  /** 복용 시 주의사항 — 메인 계열별 위트 문구 */
   const getSideEffectText = () => {
-    if (userEmotion === '지쳤어') return "부작용: 오늘 밤 치킨 등 야식 폭식이 유발될 수 있음. 무조건 푹 쉴 것!";
-    if (userEmotion === '우울해') return "부작용: 갑자기 감수성이 풍부해질 수 있음. 달콤한 디저트로 긴급 처방 권장.";
-    if (userEmotion === '완벽해') return "부작용: 과도한 자신감으로 주변이 피곤해질 수 있음. 적당한 릴렉스 요망!";
-    return "부작용: 잦은 멍때림이 발생할 수 있음. 오늘은 고민 내려놓고 일찍 잘 것!";
+    switch (main) {
+      case '주거':
+        return '부작용: 부동산 앱을 새벽까지 들여다볼 수 있음. 오늘은 앱을 끄고 푹 주무세요!';
+      case '일자리':
+        return '부작용: 갑자기 자소서가 술술 써질 수 있음. 무리하지 말고 중간중간 쉬어갈 것!';
+      case '금융':
+        return '부작용: 통장을 자꾸 확인하게 될 수 있음. 오늘은 커피 한 잔쯤 사 마셔도 괜찮아요!';
+      case '심리':
+      default:
+        return '부작용: 잦은 멍때림이 발생할 수 있음. 오늘은 고민 내려놓고 일찍 잘 것!';
+    }
   };
 
   const { width, height } = useWindowSize();
@@ -132,8 +116,8 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, userName, onR
 
             {/* Header */}
             <div className="text-center mb-8 md:mb-7 relative">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full border-2 border-[#8B4513] text-[#8B4513] mb-4">
-                <span className="text-2xl font-bold">✚</span>
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full border-2 border-[#8B4513] mb-4">
+                <span className="text-2xl">{ICONS.result}</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-[#3E3A39] mb-2 font-serif">마음약국</h2>
               <p className="text-sm md:text-base text-[#7F8C8D] tracking-wide">당신의 마음을 처방합니다</p>
@@ -142,7 +126,7 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, userName, onR
             {/* Patient Info */}
             <div className="flex justify-between items-end border-b-2 border-[#E8E1D5] pb-2 mb-6 px-1">
               <div className="flex items-baseline space-x-2">
-                <span className="text-lg md:text-xl font-bold text-[#3E3A39]">{userName}</span>
+                <span className="text-lg md:text-xl font-bold text-[#3E3A39]">{main} 처방</span>
                 <span className="text-xs text-[#7F8C8D]">귀하</span>
               </div>
               <span className="text-xs md:text-sm font-medium text-[#7F8C8D]">{dateStr}</span>
@@ -155,7 +139,7 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, userName, onR
                   마음 주치의의 편지 ✉️
                 </div>
                 <p className="mt-2 text-[14.5px] md:text-[15px] font-serif text-[#4A4543] font-medium leading-[1.8] break-keep tracking-tight text-center">
-                  {getComfortLetter()}
+                  {comfortLetter}
                 </p>
               </div>
 
@@ -198,17 +182,17 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, userName, onR
                       <div className="flex items-center">
                         {/* Pill Icon Placeholder */}
                         <div className="w-12 h-12 rounded-full bg-[#FFF3E0] text-[#D35400] flex items-center justify-center text-xl mr-4 shrink-0 font-serif shadow-inner">
-                          💊
+                          {idx === 0 ? prescription.pillEmoji : '💊'}
                         </div>
                         <div className="flex-1">
                           <div className="text-[11px] font-bold text-[#D35400] mb-0.5">
-                            [{policy.category}] {policy.title}
+                            [{policy.series}] {policy.period}
                           </div>
                           <div className="text-[16px] font-extrabold text-[#3E3A39] leading-tight mb-1.5 group-hover:text-[#D35400] transition-colors">
-                            {policy.pill_name}
+                            {policy.title}
                           </div>
                           <div className="text-[12px] text-[#666] mb-2.5 leading-snug break-keep line-clamp-2">
-                            {policy.description}
+                            {policy.support}
                           </div>
                           <div className="text-[11px] font-bold text-[#8B4513] flex items-center bg-[#F0EBE1]/50 w-fit px-2 py-1 rounded-md">
                             <span className="mr-1.5 opacity-80">🕒</span> {getDosageText(idx)}
@@ -238,6 +222,23 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, userName, onR
               </div>
             </div>
 
+            {/* 보조 처방 한 줄 */}
+            <div className="mt-4 p-4 bg-white rounded-xl border border-dashed border-[#D8CFC0]">
+              <div className="text-[12px] font-bold text-[#8B4513] mb-1.5 flex items-center">
+                <span className="mr-1.5 text-sm">🧾</span> 보조 처방 · {sub}
+              </div>
+              <div className="text-[13px] font-medium text-[#555] leading-relaxed break-keep">
+                {prescription.subLine}
+              </div>
+            </div>
+
+            {/* 오늘의 한마디 */}
+            <div className="mt-4 text-center px-2">
+              <p className="text-[12.5px] md:text-[13px] font-serif italic text-[#7F8C8D] break-keep leading-relaxed">
+                “{prescription.quote}”
+              </p>
+            </div>
+
             
             
             {/* Footer */}
@@ -265,7 +266,7 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, userName, onR
           onClick={() => setShowQR(true)}
           className="flex-[2] bg-[#3E3A39] text-white font-bold py-4 px-3 md:px-4 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-md hover:bg-[#2C2928] active:scale-[0.98]"
         >
-          <QrCode className="w-5 h-5" />
+          <span className="text-lg leading-none">{ICONS.mobile}</span>
           <span className="text-base">모바일로 결과 받기</span>
         </button>
       </div>
@@ -281,8 +282,8 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, userName, onR
               <X className="w-6 h-6" />
             </button>
             
-            <div className="w-14 h-14 bg-[#F0EBE1] rounded-full flex items-center justify-center text-[#8B4513] mb-5 border border-[#D8CFC0]">
-              <QrCode className="w-7 h-7" />
+            <div className="w-14 h-14 bg-[#F0EBE1] rounded-full flex items-center justify-center mb-5 border border-[#D8CFC0]">
+              <span className="text-3xl leading-none">{ICONS.mobile}</span>
             </div>
             
             <h3 className="text-xl font-bold text-[#3E3A39] mb-2 font-serif">모바일로 결과 받기</h3>
@@ -302,7 +303,7 @@ export const ResultScreen = ({ policies, userEmotion, userConcern, userName, onR
             </div>
             
             <div className="mt-8 text-[11px] font-bold tracking-widest text-[#95A5A6]">
-              TYPE-{getResultId()}
+              TYPE-{main}
             </div>
           </div>
         </div>
