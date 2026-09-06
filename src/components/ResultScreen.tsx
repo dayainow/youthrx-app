@@ -188,7 +188,7 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
                       <div className="flex items-center">
                         {/* Pill Icon Placeholder */}
                         <div className="w-12 h-12 rounded-full bg-[#FFF3E0] text-[#D35400] flex items-center justify-center text-xl mr-4 shrink-0 font-serif shadow-inner">
-                          {idx === 0 ? prescription.pillEmoji : '💊'}
+                          {prescription.policyEmojis[idx] ?? '💊'}
                         </div>
                         <div className="flex-1">
                           <div className="text-[11px] font-bold text-[#D35400] mb-0.5">
@@ -251,7 +251,7 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
             <div className="mt-6 pt-6 border-t border-dashed border-[#D8CFC0] relative flex items-center justify-center">
               <img src={mapoLogo} alt="서울청년센터 마포" className="h-7 object-contain opacity-80" />
               {/* Animated Red Stamp */}
-              <div className="absolute top-1 right-2 w-12 h-12 border-[2.5px] border-[#E74C3C] rounded-full flex items-center justify-center text-[#E74C3C] text-[11px] font-bold -rotate-[15deg] mix-blend-multiply opacity-0 animate-stamp z-20">
+              <div className="absolute -top-2 right-0 w-20 h-20 md:w-24 md:h-24 border-[3.5px] border-[#E74C3C] rounded-full flex items-center justify-center text-center text-[#E74C3C] text-[15px] md:text-[17px] font-bold leading-tight -rotate-[15deg] mix-blend-multiply opacity-0 animate-stamp z-20">
                 조제<br/>완료
               </div>
             </div>

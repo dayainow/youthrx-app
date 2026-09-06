@@ -79,4 +79,6 @@ export interface Prescription {
   subLine: string;
   /** 추천 정책 2~3개 */
   policies: Policy[];
+  /** policies 와 같은 순서의 약 이모지 — 카드마다 다른 아이콘을 보여주려고 함께 내려준다 */
+  policyEmojis: string[];
 }

@@ -1,7 +1,7 @@
 import type { Answers, Prescription, Series, Direction, AgeBand, Situation } from './types';
 import { SERIES_LIST, AGE_BANDS } from './types';
 import { POLICIES } from './policies';
-import { prescribe, seedFromAnswers } from './prescribe';
+import { prescribe, seedFromAnswers, pickPolicyEmojis } from './prescribe';
 
 /**
  * 9절 — QR 링크.
@@ -114,5 +114,8 @@ export function restoreFromUrl(search: string): Prescription {
     parsed.seed,
   );
 
-  return listed.length ? { ...base, policies: listed } : base;
+  // 정책을 덮어쓸 때 이모지도 함께 다시 매겨야 카드와 아이콘이 어긋나지 않는다.
+  return listed.length
+    ? { ...base, policies: listed, policyEmojis: pickPolicyEmojis(listed, base.pillEmoji) }
+    : base;
 }

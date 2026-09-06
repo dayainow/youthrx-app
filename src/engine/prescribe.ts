@@ -135,6 +135,7 @@ export function prescribe(a: Answers, seedOverride?: number): Prescription {
 
   // 이름과 이모지가 어긋나지 않도록 처방명 하나를 뽑아 함께 쓴다.
   const pill = pick(PILL_NAMES[main]);
+  const policies = pickPolicies(a, order);
 
   return {
     main,
@@ -145,6 +146,27 @@ export function prescribe(a: Answers, seedOverride?: number): Prescription {
     comfort: pick(COMFORT[main]),
     quote: pick(QUOTES),
     subLine: SUB_LINE[sub],
-    policies: pickPolicies(a, order),
+    policies,
+    policyEmojis: pickPolicyEmojis(policies, pill.emoji),
   };
+}
+
+/**
+ * 카드마다 다른 약 아이콘을 준다.
+ * 첫 칸은 대표 처방의 이모지를 그대로 쓰고, 나머지는 각 정책이 속한 계열의
+ * 처방명 이모지를 앞에서부터 가져오되 이미 나온 것은 건너뛴다.
+ */
+export function pickPolicyEmojis(policies: Policy[], headEmoji: string): string[] {
+  const used = new Set<string>();
+  return policies.map((policy, i) => {
+    if (i === 0) {
+      used.add(headEmoji);
+      return headEmoji;
+    }
+    const candidates = PILL_NAMES[policy.series] ?? [];
+    const fresh = candidates.find((c) => !used.has(c.emoji));
+    const chosen = (fresh ?? candidates[0])?.emoji ?? '💊';
+    used.add(chosen);
+    return chosen;
+  });
 }
