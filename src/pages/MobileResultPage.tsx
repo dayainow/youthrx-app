@@ -142,7 +142,7 @@ export const MobileResultPage = () => {
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FAF8F2] px-3.5 py-0.5 text-[12px] font-bold text-[#8B4513] border border-[#E8E1D5] rounded-full shadow-sm whitespace-nowrap">
                     마음 주치의의 편지 ✉️
                   </div>
-                  <p className="mt-2 text-[14.5px] font-serif text-[#5C4D43] font-medium tracking-tight text-[#4A4543] leading-[1.8] break-keep tracking-tight text-center">
+                  <p className="mt-2 text-[13px] font-letter text-[#4A4543] leading-[1.9] break-keep tracking-tight text-left">
                     {comfortLetter}
                   </p>
                 </div>
@@ -161,8 +161,8 @@ export const MobileResultPage = () => {
                         </div>
                         <div className="w-full bg-[#F0EBE1] rounded-full h-2.5 overflow-hidden">
                           <div 
-                            className={`h-2.5 rounded-full ${item.color}`}
-                            style={{ width: `${item.percent}%` }}
+                            className={`h-2.5 rounded-full animate-bar ${item.color}`}
+                            style={{ width: `${item.percent}%`, animationDelay: `${i * 150}ms` }}
                           ></div>
                         </div>
                       </div>
