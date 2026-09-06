@@ -1,72 +1,45 @@
-import { useParams } from 'react-router-dom';
 import { useRef } from 'react';
 import { Download, Share2 } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
-import policiesData from '../data/policies.json';
 import mapoLogo from '../assets/mapo_logo.png';
-import type { Policy, UserConcern, UserEmotion } from '../hooks/usePrescription';
-
-const cList: UserConcern[] = ['취업', '주거', '금융', '마음'];
-const eList: UserEmotion[] = ['완벽해', '그저 그래', '지쳤어', '우울해'];
+import { useInView } from '../hooks/useInView';
+import { restoreFromUrl } from '../engine/qr';
+import { ICONS } from '../engine/content';
 
 export const MobileResultPage = () => {
-  const { id } = useParams<{ id: string }>();
   const prescriptionRef = useRef<HTMLDivElement>(null);
   const { width, height } = useWindowSize();
 
-  // Decode ID
-  const cIdx = id ? parseInt(id.charAt(0)) - 1 : 3;
-  const eIdx = id ? parseInt(id.charAt(1)) - 1 : 2;
-  
-  const userConcern = cList[cIdx] || '마음';
-  const userEmotion = eList[eIdx] || '지쳤어';
-
-  // Get matching policies (just pick first two for this concern, similar to hook)
-  const policies = policiesData.filter(p => p.tags.includes(userConcern)).slice(0, 2) as Policy[];
+  // 서버 호출 없이 QR 링크의 쿼리값만으로 처방전을 복원한다.
+  // 값이 없거나 깨져도 폴백 처방전이 뜨므로 빈 화면이 나오지 않는다.
+  const prescription = restoreFromUrl(window.location.search);
+  const { policies, main, sub } = prescription;
 
   const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
 
-  const getComfortLetter = () => {
-    switch (userConcern) {
-      case '주거': return (
-        <>내가 살아가는 공간 하나를 마련하는 일이 이토록 무겁게 느껴질 때가 있죠.<br/>매달 나가는 주거비와 독립의 여정에 지치기도 할 거예요.<br/>하지만 남들과 비교하며 너무 서두르지 않아도 괜찮습니다.<br/>당신이 안심하고 쉴 수 있는 온전한 나의 공간을 차근차근 만들어갈 수 있도록 응원할게요.</>
-      );
-      case '금융': return (
-        <>열심히 살아왔는데도 통장 잔고를 보면 마음이 덜컥 내려앉을 때가 있죠.<br/>남들은 저만치 앞서가는 것 같아 지갑만큼 마음도 공허해지곤 합니다.<br/>하지만 삶을 준비하는 속도까지 남들과 같을 필요는 없습니다.<br/>당신만의 템포로 묵묵히 걸어가는 그 단단한 길을 진심으로 지지합니다.</>
-      );
-      case '취업': return (
-        <>끝이 보이지 않는 터널 속을 혼자 걷고 있는 기분이 들 때가 있죠.<br/>수많은 거절과 불안 속에서도 오늘 하루를 묵묵히 버텨낸 당신이 정말 대견합니다.<br/>남들이 정해놓은 트랙이 아니더라도, 조금 돌아가더라도 괜찮습니다.<br/>지금의 치열한 고민들이 모여 당신만의 빛나는 방향이 되어줄 테니까요.</>
-      );
-      case '마음':
-      default: return (
-        <>아무렇지 않은 척 하루를 보냈지만, 혼자 남겨진 방 안에서 와르르 무너져 내릴 때가 있죠.<br/>버티느라 애쓰는 동안 정작 당신의 마음은 멍들어가고 있었을지도 모릅니다.<br/>이제는 괜찮은 척하지 않아도 좋습니다. 혼자 다 감당하지 않아도 괜찮아요.<br/>잠시 무거운 짐을 내려놓고 당신의 마음을 가장 먼저 돌보아 주세요.</>
-      );
-    }
-  };
+  const comfortLetter = prescription.comfort;
+
+  /** 성분 분석표 — 메인·보조 계열 점수 비율로 만든다 */
+  const chart = useInView<HTMLDivElement>();
 
   const getIngredientData = () => {
-    if (userEmotion === '우울해') return [
-      { label: '따뜻한 위로', percent: 65, color: 'bg-rose-400' },
-      { label: '실질적 해결책', percent: 25, color: 'bg-blue-400' },
-      { label: '휴식 한 스푼', percent: 10, color: 'bg-emerald-400' },
-    ];
-    if (userEmotion === '지쳤어') return [
-      { label: '절대적 휴식', percent: 55, color: 'bg-emerald-400' },
-      { label: '마음의 여유', percent: 30, color: 'bg-amber-400' },
-      { label: '실질적 해결책', percent: 15, color: 'bg-blue-400' },
-    ];
-    if (userEmotion === '완벽해') return [
-      { label: '더 큰 도약', percent: 50, color: 'bg-indigo-400' },
-      { label: '자신감 충전', percent: 30, color: 'bg-amber-400' },
-      { label: '실질적 해결책', percent: 20, color: 'bg-blue-400' },
-    ];
-    return [
-      { label: '소소한 활력', percent: 45, color: 'bg-orange-400' },
-      { label: '따뜻한 공감', percent: 35, color: 'bg-rose-400' },
-      { label: '실질적 해결책', percent: 20, color: 'bg-blue-400' },
-    ];
+    const palette: Record<string, string> = {
+      주거: 'bg-emerald-400',
+      일자리: 'bg-blue-400',
+      금융: 'bg-amber-400',
+      심리: 'bg-rose-400',
+    };
+    const total = Object.values(prescription.scores).reduce((a, b) => a + b, 0) || 1;
+    return (Object.keys(prescription.scores) as (keyof typeof prescription.scores)[])
+      .filter((k) => prescription.scores[k] > 0)
+      .sort((a, b) => prescription.scores[b] - prescription.scores[a])
+      .map((k) => ({
+        label: `${k} 처방`,
+        percent: Math.round((prescription.scores[k] / total) * 100),
+        color: palette[k],
+      }));
   };
 
   const getDosageText = (idx: number) => {
@@ -74,11 +47,19 @@ export const MobileResultPage = () => {
     return dosages[idx % dosages.length];
   };
 
+  /** 복용 시 주의사항 — 메인 계열별 위트 문구 */
   const getSideEffectText = () => {
-    if (userEmotion === '지쳤어') return "부작용: 오늘 밤 치킨 등 야식 폭식이 유발될 수 있음. 무조건 푹 쉴 것!";
-    if (userEmotion === '우울해') return "부작용: 갑자기 감수성이 풍부해질 수 있음. 달콤한 디저트로 긴급 처방 권장.";
-    if (userEmotion === '완벽해') return "부작용: 과도한 자신감으로 주변이 피곤해질 수 있음. 적당한 릴렉스 요망!";
-    return "부작용: 잦은 멍때림이 발생할 수 있음. 오늘은 고민 내려놓고 일찍 잘 것!";
+    switch (main) {
+      case '주거':
+        return '부작용: 부동산 앱을 새벽까지 들여다볼 수 있음. 오늘은 앱을 끄고 푹 주무세요!';
+      case '일자리':
+        return '부작용: 갑자기 자소서가 술술 써질 수 있음. 무리하지 말고 중간중간 쉬어갈 것!';
+      case '금융':
+        return '부작용: 통장을 자꾸 확인하게 될 수 있음. 오늘은 커피 한 잔쯤 사 마셔도 괜찮아요!';
+      case '심리':
+      default:
+        return '부작용: 잦은 멍때림이 발생할 수 있음. 오늘은 고민 내려놓고 일찍 잘 것!';
+    }
   };
 
   const handleDownload = async () => {
@@ -100,7 +81,7 @@ export const MobileResultPage = () => {
         objectType: 'feed',
         content: {
           title: '마음약국 처방전 도착! 💌',
-          description: `저의 가장 큰 고민은 '${userConcern}'이에요. 약국에서 '${policies[0]?.pill_name || '마음 안정제'}'를 처방받았어요!`,
+          description: `저의 가장 큰 고민은 '${main}'이에요. 약국에서 '${prescription.pillName}'을 처방받았어요!`,
           imageUrl: 'https://youthrx-result.netlify.app/og-image.png',
           link: {
             mobileWebUrl: window.location.href,
@@ -143,8 +124,8 @@ export const MobileResultPage = () => {
 
                 {/* Header */}
                 <div className="text-center mb-8 relative">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full border-2 border-[#8B4513] text-[#8B4513] mb-4">
-                    <span className="text-2xl font-bold">✚</span>
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full border-2 border-[#8B4513] mb-4">
+                    <span className="text-2xl">{ICONS.result}</span>
                   </div>
                   <h2 className="text-3xl font-bold tracking-tight text-[#3E3A39] mb-2 font-serif">마음약국</h2>
                   <p className="text-sm text-[#7F8C8D] tracking-wide">당신의 마음을 처방합니다</p>
@@ -153,7 +134,7 @@ export const MobileResultPage = () => {
                 {/* Patient Info */}
                 <div className="flex justify-between items-end border-b-2 border-[#E8E1D5] pb-2 mb-6 px-1">
                   <div className="flex items-baseline space-x-2">
-                    <span className="text-lg font-bold text-[#3E3A39]">마포 청년</span>
+                    <span className="text-lg font-bold text-[#3E3A39]">{main} 처방</span>
                     <span className="text-xs text-[#7F8C8D]">귀하</span>
                   </div>
                   <span className="text-xs font-medium text-[#7F8C8D]">{dateStr}</span>
@@ -164,13 +145,13 @@ export const MobileResultPage = () => {
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FAF8F2] px-3.5 py-0.5 text-[12px] font-bold text-[#8B4513] border border-[#E8E1D5] rounded-full shadow-sm whitespace-nowrap">
                     마음 주치의의 편지 ✉️
                   </div>
-                  <p className="mt-2 text-[14.5px] font-serif text-[#5C4D43] font-medium tracking-tight text-[#4A4543] leading-[1.8] break-keep tracking-tight text-center">
-                    {getComfortLetter()}
+                  <p className="mt-2 text-[13px] font-letter text-[#4A4543] leading-[1.9] break-keep tracking-tight text-left">
+                    {comfortLetter}
                   </p>
                 </div>
 
                 {/* Prescription Ingredients Chart */}
-                <div className="mb-8 bg-white border border-[#E8E1D5] rounded-2xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                <div ref={chart.ref} className="mb-8 bg-white border border-[#E8E1D5] rounded-2xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
                   <h3 className="font-bold text-[14px] text-[#3E3A39] mb-4 flex items-center tracking-tight">
                     <span className="mr-2 text-lg">🧪</span> 맞춤 처방약 성분 분석표
                   </h3>
@@ -183,8 +164,11 @@ export const MobileResultPage = () => {
                         </div>
                         <div className="w-full bg-[#F0EBE1] rounded-full h-2.5 overflow-hidden">
                           <div 
-                            className={`h-2.5 rounded-full ${item.color}`}
-                            style={{ width: `${item.percent}%` }}
+                            className={`h-2.5 rounded-full transition-[width] duration-[900ms] ease-out ${item.color}`}
+                            style={{
+                              width: chart.inView ? `${item.percent}%` : '0%',
+                              transitionDelay: `${i * 150}ms`,
+                            }}
                           ></div>
                         </div>
                       </div>
@@ -199,11 +183,13 @@ export const MobileResultPage = () => {
                     {policies.map((policy, idx) => (
                         <div key={policy.id} className="block bg-white border border-[#E8E1D5] rounded-2xl p-4 shadow-sm group">
                           <div className="flex items-center">
-                            <div className="w-12 h-12 rounded-full bg-[#FFF3E0] text-[#D35400] flex items-center justify-center text-xl mr-4 shrink-0 font-serif shadow-inner">💊</div>
+                            <div className="w-12 h-12 rounded-full bg-[#FFF3E0] text-[#D35400] flex items-center justify-center text-xl mr-4 shrink-0 font-serif shadow-inner">
+                              {idx === 0 ? prescription.pillEmoji : '💊'}
+                            </div>
                             <div className="flex-1">
-                              <div className="text-[11px] font-bold text-[#D35400] mb-0.5">[{policy.category}] {policy.title}</div>
-                              <div className="text-[16px] font-extrabold text-[#3E3A39] leading-tight mb-1.5">{policy.pill_name}</div>
-                              <div className="text-[12px] text-[#666] mb-2.5 leading-snug break-keep line-clamp-2">{policy.description}</div>
+                              <div className="text-[11px] font-bold text-[#D35400] mb-0.5">[{policy.series}] {policy.period}</div>
+                              <div className="text-[16px] font-extrabold text-[#3E3A39] leading-tight mb-1.5">{policy.title}</div>
+                              <div className="text-[12px] text-[#666] mb-2.5 leading-snug break-keep line-clamp-2">{policy.support}</div>
                               <div className="text-[11px] font-bold text-[#8B4513] flex items-center bg-[#F0EBE1]/50 w-fit px-2 py-1 rounded-md">
                                 <span className="mr-1.5 opacity-80">🕒</span> {getDosageText(idx)}
                               </div>
@@ -222,6 +208,23 @@ export const MobileResultPage = () => {
                   <div className="text-[13px] font-medium text-[#555] leading-relaxed break-keep">
                     {getSideEffectText()}
                   </div>
+                </div>
+
+                {/* 보조 처방 한 줄 */}
+                <div className="mt-4 p-4 bg-white rounded-xl border border-dashed border-[#D8CFC0]">
+                  <div className="text-[12px] font-bold text-[#8B4513] mb-1.5 flex items-center">
+                    <span className="mr-1.5 text-sm">🧾</span> 보조 처방 · {sub}
+                  </div>
+                  <div className="text-[13px] font-medium text-[#555] leading-relaxed break-keep">
+                    {prescription.subLine}
+                  </div>
+                </div>
+
+                {/* 오늘의 한마디 */}
+                <div className="mt-4 text-center px-2">
+                  <p className="text-[12.5px] font-serif italic text-[#7F8C8D] break-keep leading-relaxed">
+                    “{prescription.quote}”
+                  </p>
                 </div>
 
                 {/* Footer */}
