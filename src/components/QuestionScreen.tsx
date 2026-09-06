@@ -1,11 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import useSound from 'use-sound';
+import { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, RotateCcw } from 'lucide-react';
+import type { Answers } from '../engine/types';
 import mapoLogo from '../assets/mapo_logo.png';
 import { CHAT, QUESTION_ORDER, randomOf } from '../engine/chatScript';
 import { STEP_FIRST_QUESTION } from '../hooks/usePrescription';
 
 interface Props {
   step: number;
+  answers: Partial<Answers>;
+  onPrevious: () => void;
+  onReset: () => void;
   onAnswer: (key: string, value: string) => void;
 }
 
@@ -21,15 +25,15 @@ type Message = {
  * 개인정보를 받지 않으므로 자유 입력창이 없다. 모든 답은 선택지 버튼이며
  * 답한 값은 상위 훅의 메모리에만 머물고 저장·전송하지 않는다.
  */
-export const QuestionScreen = ({ step, onAnswer }: Props) => {
+export const QuestionScreen = ({ step, answers, onAnswer, onPrevious, onReset }: Props) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(true);
   const [showOptions, setShowOptions] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const stepProcessed = useRef<Set<number>>(new Set());
+  const selecting = useRef(false);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const answerTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  const [playPop] = useSound('https://actions.google.com/sounds/v1/ui/pop.ogg', { volume: 0.5 });
-  const [playReceive] = useSound('https://actions.google.com/sounds/v1/water/water_drip.ogg', { volume: 0.2 });
 
   const index = step - STEP_FIRST_QUESTION;
   const question = QUESTION_ORDER[index];
@@ -40,49 +44,37 @@ export const QuestionScreen = ({ step, onAnswer }: Props) => {
     }
   }, [messages, isTyping, showOptions]);
 
-  const addPharmacistMessage = useCallback((text: string, delay = 0, triggerOptions = false) => {
-    setTimeout(() => {
-      setIsTyping(true);
-      setTimeout(() => {
-        playReceive();
-        setIsTyping(false);
-        setMessages((prev) => [...prev, { id: Math.random().toString(), sender: 'pharmacist', text }]);
-        if (triggerOptions) setShowOptions(true);
-      }, 1000);
-    }, delay);
-  }, [playReceive]);
-
   useEffect(() => {
-    // React 18 StrictMode 이중 실행 방지
-    if (!question || stepProcessed.current.has(step)) return;
-    stepProcessed.current.add(step);
-
-    const prompt = randomOf([...question.prompts]);
-
-    if (index === 0) {
-      // 첫 화면 — 이름을 묻지 않고 바로 환영 인사
-      const greeting = randomOf(CHAT.greeting);
-      greeting.forEach((line, i) => addPharmacistMessage(line, i * 1200));
-      addPharmacistMessage(prompt, greeting.length * 1200, true);
-    } else {
-      addPharmacistMessage(randomOf(CHAT.ack), 300);
-      addPharmacistMessage(prompt, 1600, true);
-    }
-  }, [step, index, question, addPharmacistMessage]);
+    if (!question) return;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const greeting = index === 0 ? randomOf(CHAT.greeting) : [randomOf(CHAT.ack)];
+    const lines = [...greeting, question.prompts[0]];
+    lines.forEach((text, i) => {
+      timers.push(setTimeout(() => {
+        setMessages((prev) => [...prev, { id: `${step}-${i}`, sender: 'pharmacist', text }]);
+        if (i === lines.length - 1) { setIsTyping(false); setShowOptions(true); }
+      }, 350 + i * 550));
+    });
+    return () => { timers.forEach(clearTimeout); clearTimeout(answerTimer.current); };
+  }, [step, index, question]);
 
   const handleSelect = (label: string, emoji: string, value: string | null) => {
-    if (!showOptions || !question) return;
-    if (navigator.vibrate) navigator.vibrate(50);
-    playPop();
+    if (!showOptions || !question || selecting.current) return;
+    selecting.current = true;
+    setIsSelecting(true);
     setShowOptions(false);
     setMessages((prev) => [...prev, { id: Math.random().toString(), sender: 'user', text: `${emoji} ${label}` }]);
-    setTimeout(() => onAnswer(question.key, value as string), 600);
+    answerTimer.current = setTimeout(() => onAnswer(question.key, value as string), 350);
   };
 
   const total = QUESTION_ORDER.length;
 
   return (
     <div className="flex-1 flex flex-col relative z-20 h-full min-h-0 bg-[#F7F5F0]">
+      <div className="flex items-center justify-between px-4 md:px-8 pt-2 text-sm text-[#8B7355] shrink-0">
+        <button className="min-h-11 flex items-center gap-1.5" onClick={onPrevious} disabled={isSelecting}><ArrowLeft size={17} />이전 질문</button>
+        <button className="min-h-11 flex items-center gap-1.5" onClick={onReset}><RotateCcw size={16} />처음으로</button>
+      </div>
       {/* 진행 표시 */}
       <div className="shrink-0 px-4 pt-3 md:px-8 md:pt-5">
         <div className="flex items-center gap-1.5 md:max-w-[620px] md:mx-auto">
@@ -150,6 +142,8 @@ export const QuestionScreen = ({ step, onAnswer }: Props) => {
           {question?.choices.map((c) => (
             <button
               key={c.label}
+              disabled={!showOptions || isSelecting}
+              aria-pressed={answers[question.key as keyof Answers] === c.value}
               onClick={() => handleSelect(c.label, c.emoji, c.value as string | null)}
               className="w-full min-h-[60px] md:min-h-[72px] bg-[#FAF8F2] border border-[#E8E1D5] hover:border-[#8B4513] rounded-xl p-3.5 md:p-4 transition-all flex items-center gap-3 active:scale-[0.98]"
             >
@@ -158,6 +152,7 @@ export const QuestionScreen = ({ step, onAnswer }: Props) => {
               </div>
               <span className="text-[#3E3A39] font-bold text-[14px] md:text-base flex-1 text-left break-keep">
                 {c.label}
+                {answers[question.key as keyof Answers] === c.value && <span className="block text-xs text-[#8B7355] mt-1">이전에 선택한 답변</span>}
               </span>
             </button>
           ))}

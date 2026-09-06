@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { RefreshCw, ChevronRight, X } from 'lucide-react';
 import mapoLogo from '../assets/mapo_logo.png';
 import { useInView } from '../hooks/useInView';
 import { QRCodeSVG } from 'qrcode.react';
-import useSound from 'use-sound';
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
 import { buildQrUrl } from '../engine/qr';
-import { RESULT_BASE } from '../engine/config';
+import { getResultBase, isLoopbackUrl } from '../engine/config';
+import { Dialog } from './Dialog';
+import { PolicyInfo } from './PolicyInfo';
 import { ICONS } from '../engine/content';
 import type { Answers, Prescription } from '../engine/types';
 
@@ -19,30 +20,16 @@ interface Props {
 
 export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
   const { policies, main, sub } = prescription;
-  const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+  const dateStr = new Date(`${prescription.issuedOn}T12:00:00+09:00`).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric' });
   const [showQR, setShowQR] = useState(false);
-  const [playStamp] = useSound('https://actions.google.com/sounds/v1/foley/wooden_door_shut.ogg', { volume: 0.8 });
-  const [playPaper] = useSound('https://actions.google.com/sounds/v1/foley/paper_rustle.ogg', { volume: 0.5 });
-
-  useEffect(() => {
-    // Play paper sound immediately
-    playPaper();
-    // Play stamp sound after 0.8s (matching CSS animation delay)
-    const timer = setTimeout(() => {
-      playStamp();
-      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    }, 800);
-    return () => clearTimeout(timer);
-  }, [playPaper, playStamp]);
-
   // QR 은 링크를 그림으로 그리는 순수 계산이라 인터넷 없이 만들어진다.
-  const qrUrl = buildQrUrl(RESULT_BASE, prescription, answers);
+  const qrUrl = buildQrUrl(getResultBase(), prescription, answers);
 
   // 위로 문구는 엔진(계열별 문구)에서 가져온다.
   const comfortLetter = prescription.comfort;
 
   /** 성분 분석표 — 메인·보조 계열 점수 비율로 만든다 */
-  const chart = useInView<HTMLDivElement>();
+  const { ref: chartRef, inView } = useInView<HTMLDivElement>();
 
   const getIngredientData = () => {
     const palette: Record<string, string> = {
@@ -90,7 +77,7 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
   const { width, height } = useWindowSize();
 
   return (
-    <div className="flex-1 flex flex-col relative z-20 h-full bg-[#F4EFE6]">
+    <div className="flex-1 flex flex-col relative z-20 h-full min-h-0 bg-[#F4EFE6]">
       <Confetti 
         width={width} 
         height={height} 
@@ -126,6 +113,8 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
               <p className="text-sm md:text-base text-[#7F8C8D] tracking-wide">당신의 마음을 처방합니다</p>
             </div>
 
+<p className="text-center text-sm font-bold text-[#8B4513] mb-5 break-keep">{prescription.pillEmoji} {prescription.pillName}</p>
+
             {/* Patient Info */}
             <div className="flex justify-between items-end border-b-2 border-[#E8E1D5] pb-2 mb-6 px-1">
               <div className="flex items-baseline space-x-2">
@@ -147,7 +136,7 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
               </div>
 
               {/* Prescription Ingredients Chart */}
-              <div ref={chart.ref} className="mb-8 md:mb-0 bg-white border border-[#E8E1D5] rounded-2xl p-5 md:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+              <div ref={chartRef} className="mb-8 md:mb-0 bg-white border border-[#E8E1D5] rounded-2xl p-5 md:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
                 <h3 className="font-bold text-[14px] md:text-[15px] text-[#3E3A39] mb-4 flex items-center tracking-tight">
                   <span className="mr-2 text-lg">🧪</span> 맞춤 처방약 성분 분석표
                 </h3>
@@ -162,7 +151,7 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
                         <div
                           className={`h-2.5 rounded-full transition-[width] duration-[900ms] ease-out ${item.color}`}
                           style={{
-                            width: chart.inView ? `${item.percent}%` : '0%',
+                            width: inView ? `${item.percent}%` : '0%',
                             transitionDelay: `${i * 150}ms`,
                           }}
                         ></div>
@@ -180,7 +169,7 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
                 {policies.map((policy, idx) => (
                     <a 
                       key={policy.id}
-                      href={policy.url}
+                      href={policy.sourceUrl ?? policy.url}
                       target="_blank"
                       rel="noreferrer"
                       className="block bg-white border border-[#E8E1D5] rounded-2xl p-4 md:p-5 shadow-sm hover:border-[#D35400] hover:shadow-md transition-all group active:scale-[0.98]"
@@ -218,6 +207,11 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
               </div>
             </div>
 
+            <details className="mt-4 text-sm text-[#555] border border-[#E8E1D5] rounded-xl p-4 bg-[#FFFDF9]">
+              <summary className="cursor-pointer font-bold text-[#8B4513] min-h-8">신청 조건과 모집 상태 확인</summary>
+              {policies.map((policy) => <PolicyInfo key={policy.id} policy={policy} />)}
+            </details>
+
             {/* Precautions (Witty Side Effects) */}
             <div className="mt-6 p-4 bg-[#F0EBE1]/60 rounded-xl border border-[#D8CFC0]">
               <div className="text-[12px] font-bold text-[#8B4513] mb-1.5 flex items-center">
@@ -248,10 +242,10 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
             
             
             {/* Footer */}
-            <div className="mt-6 pt-6 border-t border-dashed border-[#D8CFC0] relative flex items-center justify-center">
+            <div className="mt-6 pt-6 border-t border-dashed border-[#D8CFC0] relative flex items-center justify-center h-12">
               <img src={mapoLogo} alt="서울청년센터 마포" className="h-7 object-contain opacity-80" />
               {/* Animated Red Stamp */}
-              <div className="absolute -top-2 right-0 w-20 h-20 md:w-24 md:h-24 border-[3.5px] border-[#E74C3C] rounded-full flex items-center justify-center text-center text-[#E74C3C] text-[15px] md:text-[17px] font-bold leading-tight -rotate-[15deg] mix-blend-multiply opacity-0 animate-stamp z-20">
+              <div className="absolute bottom-0 right-2 md:right-4 w-20 h-20 md:w-24 md:h-24 border-[3.5px] border-[#E74C3C] rounded-full flex items-center justify-center text-center text-[#E74C3C] text-[15px] md:text-[17px] font-bold leading-tight -rotate-[15deg] mix-blend-multiply opacity-0 animate-stamp z-20">
                 조제<br/>완료
               </div>
             </div>
@@ -279,40 +273,19 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
 
       {/* QR Code Modal */}
       {showQR && (
-        <div className="absolute inset-0 z-50 bg-[#3E3A39]/60 backdrop-blur-sm flex items-center justify-center p-4 md:p-8 animate-fade-in">
-          <div className="bg-[#FAF8F2] w-full max-w-[320px] md:max-w-[380px] rounded-3xl p-7 md:p-9 flex flex-col items-center relative shadow-2xl animate-slide-up border border-[#E8E1D5]">
-            <button 
-              onClick={() => setShowQR(false)}
-              className="absolute top-4 right-4 min-w-11 p-2 text-[#7F8C8D] hover:text-[#3E3A39] transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            
-            <div className="w-14 h-14 bg-[#F0EBE1] rounded-full flex items-center justify-center mb-5 border border-[#D8CFC0]">
-              <span className="text-3xl leading-none">{ICONS.mobile}</span>
-            </div>
-            
-            <h3 className="text-xl font-bold text-[#3E3A39] mb-2 font-serif">모바일로 결과 받기</h3>
-            <p className="text-[13px] text-[#7F8C8D] text-center mb-8 break-keep">
-              스마트폰 카메라로 아래 QR 코드를 스캔하면<br/>처방전을 기기에 저장할 수 있습니다.
-            </p>
-            
-            <div className="p-4 bg-white rounded-2xl shadow-sm border border-[#E8E1D5]">
-              <QRCodeSVG 
-                value={qrUrl}
-                size={160}
-                bgColor={"#ffffff"}
-                fgColor={"#3E3A39"}
-                level={"H"}
-                includeMargin={false}
-              />
-            </div>
-            
-            <div className="mt-8 text-[11px] font-bold tracking-widest text-[#95A5A6]">
-              TYPE-{main}
-            </div>
-          </div>
-        </div>
+        <Dialog title="모바일로 결과 받기" onClose={() => setShowQR(false)}>
+          <button onClick={() => setShowQR(false)} aria-label="QR 닫기" className="absolute top-3 right-3 min-w-11 min-h-11 flex items-center justify-center text-[#7F8C8D]"><X className="w-6 h-6" /></button>
+          <div className="w-14 h-14 bg-[#F0EBE1] rounded-full flex items-center justify-center mx-auto mb-5 border border-[#D8CFC0]"><span className="text-3xl">{ICONS.mobile}</span></div>
+          <h3 className="text-xl font-bold text-[#3E3A39] mb-2 font-serif">모바일로 결과 받기</h3>
+          <p className="text-[13px] text-[#7F8C8D] text-center mb-6 break-keep">카메라로 QR을 찍고 열린 화면에서<br /><strong>이미지 저장</strong>을 눌러주세요.</p>
+          {isLoopbackUrl(qrUrl) ? <div className="bg-[#F0EBE1] rounded-xl p-4 text-sm leading-relaxed text-left">
+            <p className="font-bold">휴대폰 연결 주소가 필요해요</p><p className="mt-2">운영자가 같은 와이파이에서 접속 가능한 주소로 열거나, 공개 결과 주소를 설정하면 QR이 표시됩니다.</p>
+            <a href={qrUrl} target="_blank" rel="noreferrer" className="inline-block mt-3 underline text-[#8B4513]">이 기기에서 결과 미리보기</a>
+          </div> : <div className="p-3 bg-white rounded-2xl shadow-sm border border-[#E8E1D5] w-fit mx-auto"><QRCodeSVG value={qrUrl} size={220} bgColor="#ffffff" fgColor="#3E3A39" level="M" marginSize={4} title="나의 처방전 QR" /></div>}
+          <div className="mt-5 text-xs font-bold tracking-widest text-[#8B7355]">TYPE-{main}</div>
+          <p className="text-xs text-[#7F8C8D] leading-relaxed mt-3">휴대폰에서 결과가 열렸는지 확인해 주세요.</p>
+          <button className="enhance-button enhance-primary w-full mt-4" onClick={onReset}>확인했어요 · 다음 참여자</button>
+        </Dialog>
       )}
     </div>
   );

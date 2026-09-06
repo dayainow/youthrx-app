@@ -33,13 +33,18 @@ export function useInView<T extends HTMLElement>(threshold = 0.35) {
 
     // 옵저버가 없는 환경에서는 애니메이션을 건너뛰고 바로 보여준다.
     if (typeof IntersectionObserver === 'undefined') {
-      setInView(true);
-      return;
+      const frame = requestAnimationFrame(() => setInView(true));
+      return () => cancelAnimationFrame(frame);
     }
 
     // 0% 인 상태가 한 프레임은 그려져야 브라우저가 transition 을 잡는다.
-    const start = () =>
-      requestAnimationFrame(() => requestAnimationFrame(() => setInView(true)));
+    let firstFrame = 0;
+    let secondFrame = 0;
+    const start = () => {
+      firstFrame = requestAnimationFrame(() => {
+        secondFrame = requestAnimationFrame(() => setInView(true));
+      });
+    };
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -50,7 +55,7 @@ export function useInView<T extends HTMLElement>(threshold = 0.35) {
       { root: scrollParent(el), threshold },
     );
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => { observer.disconnect(); cancelAnimationFrame(firstFrame); cancelAnimationFrame(secondFrame); };
   }, [threshold]);
 
   return { ref, inView };

@@ -1,10 +1,15 @@
-/**
- * 결과 페이지 주소 (구현안내서 11절 — 개발자 결정 사항).
- *
- * 행사 전에 한 번 배포해두는 폰용 결과 페이지의 주소.
- * 태블릿은 오프라인이지만 이 주소 뒤에 결과값만 붙여 QR 그림을 그리므로
- * 네트워크가 필요 없다. 배포 주소가 정해지면 .env 의
- * VITE_RESULT_BASE 로 덮어쓸 수 있다.
- */
-export const RESULT_BASE: string =
-  import.meta.env?.VITE_RESULT_BASE ?? 'https://youthrx-result.netlify.app/r';
+/** 공개 결과 페이지 또는 같은 와이파이에서 접근 가능한 행사 서버의 /r 주소. */
+export function getResultBase(): string {
+  const configured = import.meta.env.VITE_RESULT_BASE?.trim();
+  if (configured) {
+    try {
+      const url = new URL(configured);
+      if (url.protocol === 'https:' || url.protocol === 'http:') return url.toString();
+    } catch { /* 잘못된 설정은 현재 서버로 복구한다. */ }
+  }
+  return new URL('/r', window.location.origin).toString();
+}
+export function isLoopbackUrl(value: string): boolean {
+  const host = new URL(value).hostname;
+  return host === 'localhost' || host.endsWith('.localhost') || host.startsWith('127.') || host === '[::1]';
+}

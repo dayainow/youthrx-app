@@ -1,4 +1,5 @@
-import React from 'react';
+import { Dialog } from './components/Dialog';
+import { useIdleReset } from './hooks/useIdleReset';
 import { Routes, Route } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Layout } from './components/Layout';
@@ -17,8 +18,22 @@ import {
 } from './hooks/usePrescription';
 import type { Answers } from './engine/types';
 
+function IdleGuard({ onReset }: { onReset: () => void }) {
+  const { remaining, keepGoing } = useIdleReset(onReset);
+  return (
+    <>
+      {remaining !== null && <Dialog title="계속 체험하고 계신가요?" onClose={keepGoing}>
+        <h2 className="text-xl font-bold mb-4">계속 체험하고 계신가요?</h2>
+        <p className="text-sm leading-relaxed mb-5">{remaining}초 후 다음 참여자를 위해 처음 화면으로 돌아가요.</p>
+        <button className="enhance-button enhance-primary w-full" onClick={keepGoing}>네, 계속할게요</button>
+        <button className="enhance-button w-full mt-3" onClick={onReset}>체험 마치기</button>
+      </Dialog>}
+    </>
+  );
+}
+
 function KioskFlow() {
-  const { step, nextStep, reset, answers, answer, prescription } = usePrescription();
+  const { step, nextStep, prevStep, reset, answers, answer, prescription } = usePrescription();
 
   const pageVariants = {
     initial: { opacity: 0, y: 15 },
@@ -26,28 +41,14 @@ function KioskFlow() {
     out: { opacity: 0, y: -15 }
   };
 
-  const pageTransition: any = {
-    type: 'tween',
-    ease: 'anticipate',
+  const pageTransition = {
+    type: 'tween' as const,
+    ease: 'anticipate' as const,
     duration: 0.5
   };
 
-  const audioRef = React.useRef<HTMLAudioElement>(null);
-  React.useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = 0.15;
-    }
-  }, []);
-
   return (
     <Layout>
-      {/* Background Music */}
-      <audio 
-        ref={audioRef}
-        src="https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg" 
-        autoPlay 
-        loop 
-      />
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
@@ -60,7 +61,7 @@ function KioskFlow() {
         >
           {step === STEP_INTRO && <IntroScreen onNext={nextStep} />}
           {step >= STEP_FIRST_QUESTION && step <= STEP_LAST_QUESTION && (
-            <QuestionScreen step={step} onAnswer={answer} />
+            <QuestionScreen step={step} answers={answers} onAnswer={answer} onPrevious={prevStep} onReset={reset} />
           )}
           {step === STEP_LOADING && <LoadingScreen onComplete={nextStep} />}
           {step === STEP_RESULT && prescription && (
@@ -72,6 +73,7 @@ function KioskFlow() {
           )}
         </motion.div>
       </AnimatePresence>
+      {step !== STEP_INTRO && <IdleGuard onReset={reset} />}
     </Layout>
   );
 }

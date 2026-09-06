@@ -41,6 +41,10 @@ export interface Policy {
   ages: AgeBand[];
   /** 대상 상황. null 이면 전체 허용 */
   situations: Situation[] | null;
+  applicationWindow?: { start: string; end: string };
+  checkedAt?: string;
+  sourceUrl?: string;
+  eligibilityNote?: string;
 }
 
 /** 사용자 응답 7문항 */
@@ -63,6 +67,7 @@ export type Scores = Record<Series, number>;
 
 /** 최종 처방전 결과 */
 export interface Prescription {
+  issuedOn: string;
   /** 메인 처방 계열 = 결과지 종류 */
   main: Series;
   /** 보조 처방 계열 (한 줄만 노출) */

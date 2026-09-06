@@ -1,28 +1,27 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
+import type { Prescription } from '../engine/types';
+import { useResultImage } from '../hooks/useResultImage';
+import { PolicyInfo } from '../components/PolicyInfo';
 import { Download, Share2 } from 'lucide-react';
-import { toPng } from 'html-to-image';
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'react-use';
 import mapoLogo from '../assets/mapo_logo.png';
-import { useInView } from '../hooks/useInView';
 import { restoreFromUrl } from '../engine/qr';
 import { ICONS } from '../engine/content';
 
-export const MobileResultPage = () => {
+const MobileResultContent = ({ prescription }: { prescription: Prescription }) => {
   const prescriptionRef = useRef<HTMLDivElement>(null);
   const { width, height } = useWindowSize();
 
-  // 서버 호출 없이 QR 링크의 쿼리값만으로 처방전을 복원한다.
-  // 값이 없거나 깨져도 폴백 처방전이 뜨므로 빈 화면이 나오지 않는다.
-  const prescription = restoreFromUrl(window.location.search);
   const { policies, main, sub } = prescription;
 
-  const dateStr = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+  const dateStr = new Date(`${prescription.issuedOn}T12:00:00+09:00`).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric' });
 
   const comfortLetter = prescription.comfort;
 
   /** 성분 분석표 — 메인·보조 계열 점수 비율로 만든다 */
-  const chart = useInView<HTMLDivElement>();
+  const saved = useResultImage(prescriptionRef, `마음약국_${main}_${prescription.issuedOn}.png`);
 
   const getIngredientData = () => {
     const palette: Record<string, string> = {
@@ -62,46 +61,6 @@ export const MobileResultPage = () => {
     }
   };
 
-  const handleDownload = async () => {
-    if (prescriptionRef.current === null) return;
-    try {
-      const dataUrl = await toPng(prescriptionRef.current, { cacheBust: true, pixelRatio: 2 });
-      const link = document.createElement('a');
-      link.download = '마음약국_약봉투.png';
-      link.href = dataUrl;
-      link.click();
-    } catch (err) {
-      console.error('Failed to download image', err);
-    }
-  };
-
-  const handleKakaoShare = () => {
-    if (window.Kakao) {
-      window.Kakao.Share.sendDefault({
-        objectType: 'feed',
-        content: {
-          title: '마음약국 처방전 도착! 💌',
-          description: `저의 가장 큰 고민은 '${main}'이에요. 약국에서 '${prescription.pillName}'을 처방받았어요!`,
-          imageUrl: 'https://youthrx-result.netlify.app/og-image.png',
-          link: {
-            mobileWebUrl: window.location.href,
-            webUrl: window.location.href,
-          },
-        },
-        buttons: [
-          {
-            title: '나도 진단받기',
-            link: {
-              mobileWebUrl: 'https://youthrx-result.netlify.app/',
-              webUrl: 'https://youthrx-result.netlify.app/',
-            },
-          },
-        ],
-      });
-    } else {
-      alert('카카오톡 공유를 지원하지 않는 환경입니다.');
-    }
-  };
 
   return (
     <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center p-0 sm:p-4 md:p-6 w-full">
@@ -131,6 +90,8 @@ export const MobileResultPage = () => {
                   <p className="text-sm text-[#7F8C8D] tracking-wide">당신의 마음을 처방합니다</p>
                 </div>
 
+<p className="text-center text-sm font-bold text-[#8B4513] mb-5 break-keep">{prescription.pillEmoji} {prescription.pillName}</p>
+
                 {/* Patient Info */}
                 <div className="flex justify-between items-end border-b-2 border-[#E8E1D5] pb-2 mb-6 px-1">
                   <div className="flex items-baseline space-x-2">
@@ -151,7 +112,7 @@ export const MobileResultPage = () => {
                 </div>
 
                 {/* Prescription Ingredients Chart */}
-                <div ref={chart.ref} className="mb-8 bg-white border border-[#E8E1D5] rounded-2xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                <div className="mb-8 bg-white border border-[#E8E1D5] rounded-2xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
                   <h3 className="font-bold text-[14px] text-[#3E3A39] mb-4 flex items-center tracking-tight">
                     <span className="mr-2 text-lg">🧪</span> 맞춤 처방약 성분 분석표
                   </h3>
@@ -166,7 +127,7 @@ export const MobileResultPage = () => {
                           <div 
                             className={`h-2.5 rounded-full transition-[width] duration-[900ms] ease-out ${item.color}`}
                             style={{
-                              width: chart.inView ? `${item.percent}%` : '0%',
+                              width: `${item.percent}%`,
                               transitionDelay: `${i * 150}ms`,
                             }}
                           ></div>
@@ -195,6 +156,8 @@ export const MobileResultPage = () => {
                               </div>
                             </div>
                           </div>
+                          <a data-no-export href={policy.sourceUrl ?? policy.url} target="_blank" rel="noopener noreferrer" className="flex justify-between items-center text-sm font-bold text-[#8B4513] mt-3 pt-3 border-t border-[#E8E1D5] min-h-11">공식 안내 보기<span aria-hidden="true">↗</span><span className="sr-only">(새 탭)</span></a>
+                          <details data-no-export className="mt-2 text-sm text-[#555]"><summary className="cursor-pointer min-h-8">추천 이유와 신청 조건</summary><PolicyInfo policy={policy} /></details>
                         </div>
                     ))}
                   </div>
@@ -238,21 +201,30 @@ export const MobileResultPage = () => {
             </div>
           </div>
           
+          <div className="text-center text-sm text-[#7F8C8D] mb-3">
+            <button className="min-h-11 underline underline-offset-4 text-[#8B4513]" onClick={saved.copyLink}>결과 링크 복사</button>
+            <p role="status" aria-live="polite" className="leading-relaxed">{saved.message}</p>
+            {saved.showLink && <input className="border border-[#D8CFC0] rounded-lg p-3 w-full mt-2" aria-label="내 결과 링크" readOnly value={window.location.href} onFocus={(event) => event.target.select()} />}
+            {saved.error && <div role="alert"><p>이미지를 만들지 못했어요. 화면을 캡처하거나 링크를 보관해 주세요.</p><button className="min-h-11 underline text-[#8B4513]" onClick={saved.retry}>이미지 다시 만들기</button></div>}
+            {saved.showPreview && saved.image && <details open className="mt-3"><summary className="min-h-11 cursor-pointer">저장이 안 되면 이미지를 길게 눌러주세요</summary><img src={saved.image.url} alt="저장용 마음약국 처방전" className="w-full h-auto" /></details>}
+          </div>
           {/* Share Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 mt-auto bg-[#FAF8F2] pt-4 pb-[max(2rem,env(safe-area-inset-bottom))] sm:pb-2 z-30 relative shrink-0">
             <button 
-              onClick={handleDownload}
+              onClick={saved.download}
+              disabled={!saved.image}
               className="w-full bg-[#3E3A39] text-white font-bold py-4 px-4 rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-md hover:bg-[#2C2928] active:scale-[0.98]"
             >
               <Download className="w-5 h-5" />
-              <span className="text-base">인스타그램용 이미지 저장</span>
+              <span className="text-base">{saved.image ? '인스타그램용 이미지 저장' : saved.error ? '이미지 생성 실패' : '이미지 준비 중…'}</span>
             </button>
             <button 
-              onClick={handleKakaoShare}
+              onClick={saved.share}
+              disabled={saved.isSharing}
               className="w-full bg-[#FEE500] text-[#191919] font-bold py-4 px-4 rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-sm hover:brightness-95 active:scale-[0.98]"
             >
               <Share2 className="w-5 h-5" />
-              <span className="text-base">카카오톡으로 결과 공유</span>
+              <span className="text-base">{saved.isSharing ? '공유 중…' : '결과 공유하기'}</span>
             </button>
           </div>
         </div>
@@ -260,3 +232,14 @@ export const MobileResultPage = () => {
     </div>
   );
 };
+
+export function MobileResultPage() {
+  const { search } = useLocation();
+  const prescription = useMemo(() => restoreFromUrl(search), [search]);
+  if (!prescription) return <main className="min-h-screen bg-[#FAF8F2] flex flex-col items-center justify-center p-6 text-center text-[#3E3A39]">
+    <span className="text-5xl" aria-hidden="true">✉️</span><h1 className="text-2xl font-bold mt-6">처방전을 확인할 수 없어요</h1>
+    <p className="mt-4 text-[#7F8C8D] leading-relaxed">QR 주소가 잘렸거나 이전 버전의 결과입니다.<br />부스 화면의 QR을 다시 찍어주세요.</p>
+    <a className="enhance-button enhance-primary mt-6" href="/">새 처방 받기</a>
+  </main>;
+  return <MobileResultContent key={search} prescription={prescription} />;
+}

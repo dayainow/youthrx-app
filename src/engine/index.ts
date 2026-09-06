@@ -11,6 +11,6 @@ export {
   prescribe, computeScores, rankSeries, pickPolicies, isEligible, seedFromAnswers,
 } from './prescribe';
 export {
-  buildQrUrl, encodeResult, decodeResult, restoreFromUrl, FALLBACK_ANSWERS,
+  buildQrUrl, encodeResult, decodeResult, restoreFromUrl,
 } from './qr';
 export * from './chatScript';

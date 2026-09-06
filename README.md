@@ -1,32 +1,56 @@
-# React + TypeScript + Vite
+# 마음약방 처방전
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+기존 약봉투·채팅 디자인을 유지한 청년정책 체험 앱입니다. 질문과 추천 계산은 브라우저에서 실행하며 이름·연락처를 수집하지 않습니다. 효과음과 배경음은 사용하지 않습니다.
 
-Currently, two official plugins are available:
+## 로컬 실행
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+설치된 의존성이 없다면 `npm ci`를 먼저 실행합니다.
 
-## React Compiler
+개발 중에는 `npm run dev`를 실행합니다. 행사 운영은 아래처럼 빌드한 정적 파일을 실행하세요.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```sh
+npm run build
+npm start
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+터미널의 **Network 주소**(예: `http://192.168.x.x:4173`)로 부스 화면을 여세요. 휴대폰·태블릿도 같은 와이파이에 연결합니다. 노트북을 켜 두고 서버를 종료하거나 절전 상태로 만들지 마세요. 인터넷은 없어도 되지만 기기끼리의 로컬 네트워크 연결은 필요합니다. 게스트 와이파이의 기기 간 접속 차단 기능이 있으면 휴대폰에서 열리지 않을 수 있습니다.
+
+`localhost`로 연 화면은 휴대폰에서 접근할 수 없으므로 QR 대신 주소 설정 안내를 표시합니다. 와이파이가 바뀌면 Network 주소도 달라질 수 있으니 행사 네트워크에서 최종 확인하세요.
+
+휴대폰이 행사 와이파이에 연결하지 않아도 결과를 열게 하려면 **동일한 빌드**의 결과 페이지를 공개 HTTPS 주소에 올리고 `.env.local`의 `VITE_RESULT_BASE`에 `/r` 주소를 지정한 뒤 다시 빌드하세요. `.env.example`을 참고하세요. 이번 변경에서는 외부 배포를 하지 않았습니다.
+
+폰 이미지 저장은 PNG 다운로드 및 길게 눌러 저장하는 대체 경로를 제공합니다. 공유는 지원되는 브라우저에서 기본 공유창을 사용하며, 미지원 환경에서는 링크 복사를 제공합니다. LAN의 HTTP 주소에서는 브라우저가 공유·클립보드 기능을 제한할 수 있어 수동 주소 복사도 제공합니다. QR을 스캔했다고 사진 앱에 자동 저장되는 것은 아닙니다.
+
+## 동작
+
+- 6개 선택형 질문, 이전 질문에서 답변 수정, 연속 탭 중복 처리 방지.
+- 90초 미사용 시 30초 안내 후 처음 화면으로 복귀. 스크롤·터치·키 입력은 사용 중으로 처리합니다.
+- QR 버전 2는 원래 응답, 추천 정책 ID, 한국 시간 기준 발급일을 전달합니다. 점수·문구·정책·이모지를 동일하게 복원합니다.
+- QR은 결과 링크를 담으며 별도 결과 DB는 없습니다. 참가자가 이미지나 링크를 직접 보관합니다. 링크에는 선택한 상황·나이대·고민을 복원할 수 있는 값이 포함됩니다.
+- 누락·손상·지원하지 않는 버전의 QR은 임의 결과를 보여주지 않고 재스캔을 안내합니다. 이전 개발 버전의 QR은 재발급하세요.
+- 행사 배포 후 `CONTENT_VERSION`에 대응하는 문구·정책 카탈로그는 고정해야 합니다. 문구/정책을 바꾸는 새 배포가 필요하면 구버전 결과를 유지하는 별도 버전 경로를 마련하세요. 같은 ID의 내용을 덮어쓰면 과거 결과도 달라질 수 있습니다.
+- 폰 결과에서는 정책별 공식 안내 링크와 대상 조건을 볼 수 있습니다. 자격 조건을 임의로 완화해 추천 개수를 채우지 않습니다.
+- 날짜가 확인된 종료 모집은 신규 추천에서 제외합니다. 기간이 확인되지 않은 정책은 `모집 공고 확인`으로 표시합니다. 발급된 QR의 정책 목록은 나중에 모집이 끝나더라도 보존합니다.
+
+## 검증
+
+```sh
+npm run check
+npm run lint
+npm run build
+```
+
+`check`는 5,120개 답변 조합의 추천 개수·자격과 QR 전체 복원 일치, 손상된 링크, 날짜 및 모집기간 경계, 답변 수정·중복 처리, 초기화 타이밍을 검사합니다.
+
+행사 전 실제 아이폰·안드로이드에서 QR 열기 → 정책 안내 → 이미지 저장을 확인하세요. 와이파이 연결, 화면 밝기, 절전 설정, 서버 재시작 후 접속까지 최종 리허설이 필요합니다.
+
+## 정책 데이터 확인
+
+2026-09-07 확인한 아래 항목에 공식 출처를 기록했습니다. 모든 정책의 전체 자격을 실시간 검증하는 앱은 아닙니다. 나머지 데이터는 기존 제공 자료를 유지했고 모집 중이라고 단정하지 않습니다. 행사 전 담당자가 공고와 세부 자격을 최종 확인해야 합니다.
+
+- [서울시 청년월세 지원 모집 공고](https://www.seoul.go.kr/news/news_notice.do?nttNo=457234&tr_code=snews): 5월 모집 종료 및 유형별 대상 안내.
+- [서울주거포털 보도자료](https://housing.seoul.go.kr/site/main/tvReportedInfo/list?cp=3): 청년 중개보수·이사비 하반기 8월 18~31일 모집 확인.
+- [청년몽땅정보통 공지사항](https://youth.seoul.go.kr/bbs/list.do?key=2303300002): 2차 학자금대출 이자 지원 8월 3일~9월 15일 신청 일정 확인.
+- [청년문화예술패스 공식 안내](https://youthculturepass.or.kr/kr/bbs/list.do?bbsId=B0000011&menuSn=204977&pageIndex=1): 2026년 19~20세 대상 및 지역별 추가 발급 공지. 기존 19~23세 구간 전체가 대상인 것으로 오해하지 않도록 별도 안내.
+
+글꼴은 기존 Pretendard Variable과 고운바탕을 로컬 파일로 사용합니다. 라이선스는 `src/assets/fonts`에 포함되어 있습니다.

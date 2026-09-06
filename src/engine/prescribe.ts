@@ -2,6 +2,8 @@ import type {
   Answers, Policy, Prescription, Scores, Series, AgeBand, Situation, Direction,
 } from './types';
 import { SERIES_LIST } from './types';
+import { koreanDate } from './dates';
+import { policyAvailability } from './availability';
 import { POLICIES } from './policies';
 import { PILL_NAMES, COMFORT, QUOTES, SUB_LINE, DIRECTION_AFFINITY } from './content';
 
@@ -85,6 +87,7 @@ export function pickPolicies(
   order: Series[],
   count = 3,
   pool: Policy[] = POLICIES,
+  today = koreanDate(),
 ): Policy[] {
   const direction: Direction = a.direction;
 
@@ -93,7 +96,8 @@ export function pickPolicies(
   const fromSeries = (s: Series) =>
     pool
       .filter((p) => p.series === s && isEligible(p, a.age, a.situation))
-      .sort((x, y) => rank(x) - rank(y) || x.id.localeCompare(y.id));
+      .filter((p) => policyAvailability(p, today).state !== 'closed')
+      .sort((x, y) => policyAvailability(x, today).priority - policyAvailability(y, today).priority || rank(x) - rank(y) || x.id.localeCompare(y.id));
 
   const picked: Policy[] = [];
   for (const s of order) {
@@ -102,17 +106,6 @@ export function pickPolicies(
       if (!picked.some((q) => q.id === p.id)) picked.push(p);
     }
     if (picked.length >= count) break;
-  }
-
-  // 자격 필터가 너무 빡빡해 2개 미만이면 나이 조건만 지키고 상황 조건을 푼다.
-  if (picked.length < 2) {
-    for (const s of order) {
-      for (const p of pool.filter((q) => q.series === s && q.ages.includes(a.age))) {
-        if (picked.length >= count) break;
-        if (!picked.some((q) => q.id === p.id)) picked.push(p);
-      }
-      if (picked.length >= count) break;
-    }
   }
 
   return picked.slice(0, count);
@@ -124,7 +117,7 @@ export function pickPolicies(
  * seedOverride 는 QR 링크로 넘어온 seed 를 그대로 쓰기 위한 것.
  * 폰 결과 페이지가 태블릿과 같은 처방명·명언을 보여주려면 반드시 필요하다.
  */
-export function prescribe(a: Answers, seedOverride?: number): Prescription {
+export function prescribe(a: Answers, seedOverride?: number, issuedOn = koreanDate()): Prescription {
   const scores = computeScores(a);
   const order = rankSeries(scores, a);
   const main = order[0];
@@ -135,9 +128,10 @@ export function prescribe(a: Answers, seedOverride?: number): Prescription {
 
   // 이름과 이모지가 어긋나지 않도록 처방명 하나를 뽑아 함께 쓴다.
   const pill = pick(PILL_NAMES[main]);
-  const policies = pickPolicies(a, order);
+  const policies = pickPolicies(a, order, 3, POLICIES, issuedOn);
 
   return {
+    issuedOn,
     main,
     sub,
     scores,
