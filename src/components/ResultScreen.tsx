@@ -266,7 +266,6 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
           onClick={() => setShowQR(true)}
           className="flex-[2] bg-[#3E3A39] text-white font-bold py-4 px-3 md:px-4 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-md hover:bg-[#2C2928] active:scale-[0.98]"
         >
-          <span className="text-lg leading-none">{ICONS.mobile}</span>
           <span className="text-base">모바일로 결과 받기</span>
         </button>
       </div>
