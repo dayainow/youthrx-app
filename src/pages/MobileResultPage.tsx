@@ -2,8 +2,8 @@ import { useParams } from 'react-router-dom';
 import { useRef } from 'react';
 import { Download, Share2 } from 'lucide-react';
 import { toPng } from 'html-to-image';
-  import Confetti from 'react-confetti';
-  import { useWindowSize } from 'react-use';
+import Confetti from 'react-confetti';
+import { useWindowSize } from 'react-use';
 import policiesData from '../data/policies.json';
 import mapoLogo from '../assets/mapo_logo.png';
 import type { Policy, UserConcern, UserEmotion } from '../hooks/usePrescription';
@@ -123,10 +123,11 @@ export const MobileResultPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 w-full">
-      <div className="bg-[#FAF8F2] text-gray-900 w-full max-w-md h-full min-h-[100dvh] shadow-xl relative overflow-y-auto flex flex-col sm:rounded-3xl sm:min-h-[800px] sm:h-[800px]">
+    <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center p-0 sm:p-4 md:p-6 w-full">
+      <div className="result-page-frame bg-[#FAF8F2] text-gray-900 w-full shadow-xl relative overflow-y-auto flex flex-col sm:rounded-3xl">
         
-        \n      <Confetti width={width} height={height} recycle={false} numberOfPieces={300} gravity={0.15} colors={['#E74C3C', '#F1C40F', '#3498DB', '#2ECC71', '#9B59B6']} />\n      <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-20 h-full min-h-0">
+        <Confetti width={width} height={height} recycle={false} numberOfPieces={300} gravity={0.15} colors={['#E74C3C', '#F1C40F', '#3498DB', '#2ECC71', '#9B59B6']} />
+        <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-20 h-full min-h-0">
           <div className="flex-1 pb-6 flex justify-center animate-slide-up">
             
             {/* Authentic Korean Medicine Bag (약봉투) */}
@@ -235,7 +236,7 @@ export const MobileResultPage = () => {
           </div>
           
           {/* Share Buttons */}
-          <div className="flex flex-col space-y-3 mt-auto bg-[#FAF8F2] pt-4 pb-8 sm:pb-2 z-30 relative shrink-0">
+          <div className="flex flex-col sm:flex-row gap-3 mt-auto bg-[#FAF8F2] pt-4 pb-[max(2rem,env(safe-area-inset-bottom))] sm:pb-2 z-30 relative shrink-0">
             <button 
               onClick={handleDownload}
               className="w-full bg-[#3E3A39] text-white font-bold py-4 px-4 rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-md hover:bg-[#2C2928] active:scale-[0.98]"
