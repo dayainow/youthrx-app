@@ -41,7 +41,7 @@ export const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
         <div className="w-3 h-3 bg-[#B5731A] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
       </div>
 
-      <div className="absolute bottom-6 left-0 right-0 text-center text-[10px] text-gray-400/60 font-light px-4 break-keep">
+      <div className="absolute bottom-6 left-0 right-0 text-center text-xs text-gray-400 font-medium px-4 break-keep">
         서울청년센터마포, 아트앤쉐어링, 올라, 드림잇 수어스터디, 아일랜드 춤과음악
       </div>
     </div>
