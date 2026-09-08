@@ -222,13 +222,13 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
               </div>
             </div>
 
-            {/* 보조 처방 한 줄 */}
+            {/* 청년정책 종합상담 안내 (보조 처방 대체) */}
             <div className="mt-4 p-4 bg-white rounded-xl border border-dashed border-[#D8CFC0]">
               <div className="text-[12px] font-bold text-[#8B4513] mb-1.5 flex items-center">
-                <span className="mr-1.5 text-sm">🧾</span> 보조 처방 · {sub}
+                <span className="mr-1.5 text-sm">🧾</span> 더 많은 도움이 필요하다면?
               </div>
               <div className="text-[13px] font-medium text-[#555] leading-relaxed break-keep">
-                {prescription.subLine}
+                선택하신 분야 외에도 서울청년센터 마포에서 주거, 일자리, 금융, 심리 등 다양한 청년정책 종합상담을 받아보실 수 있어요.
               </div>
             </div>
 
