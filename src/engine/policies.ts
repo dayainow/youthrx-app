@@ -189,7 +189,9 @@ export const POLICIES: Policy[] = [
     series: '일자리',
     title: '국가기술자격 응시료 지원',
     target: '만 34세 이하 청년',
-    support: '국가기술자격 응시료 50% 지원 (원서 접수 시 자동 할인, 연 3회)',
+    // 카드의 support 는 두 줄로 잘리므로 핵심만 남기고, 자세한 설명은 eligibilityNote 에 둔다.
+    support: '응시료 50% 자동 할인 · 연 3회',
+    eligibilityNote: '따로 신청할 것이 없어요. 원서를 접수할 때 응시료가 자동으로 할인됩니다.',
     period: '상시',
     reason: '자격증 준비 비용을 아끼고 싶은 청년에게',
     url: 'https://www.q-net.or.kr/man004.do?id=man00402&gSite=Q&BOARD_ID=Q001&ARTL_SEQ=5251124',
