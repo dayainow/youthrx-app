@@ -1,6 +1,6 @@
 import { Play } from 'lucide-react';
 import mapoLogo from '../assets/mapo_logo.png';
-import { ICONS } from '../engine/content';
+import { CREDIT_LINE, ICONS } from '../engine/content';
 
 export const IntroScreen = ({ onNext }: { onNext: () => void }) => {
   return (
@@ -8,7 +8,7 @@ export const IntroScreen = ({ onNext }: { onNext: () => void }) => {
       <div className="text-center md:text-left space-y-4 md:space-y-5 flex flex-col items-center md:items-start md:self-center">
         <img src={mapoLogo} alt="서울청년센터 마포" className="h-10 md:h-12 object-contain mb-1 md:mb-2" />
         <h2 className="text-[2.5rem] md:text-5xl leading-tight font-extrabold tracking-tight text-[#3E3A39] mt-1 md:mt-2">
-          마음약방<br/>처방전
+          청년정책<br/>처방전
         </h2>
         <p className="text-[#7F8C8D] text-[15px] md:text-lg leading-relaxed break-keep px-2 md:px-0">
           오늘 하루, 정말 고생 많았어요.<br />
@@ -32,6 +32,11 @@ export const IntroScreen = ({ onNext }: { onNext: () => void }) => {
         <span className="text-[17px] md:text-lg">처방 시작하기</span>
         <Play className="w-5 h-5 md:w-6 md:h-6 fill-current" />
       </button>
+
+      {/* 제작 크레딧 (베타 피드백 #3) */}
+      <p className="md:col-span-2 md:justify-self-center text-center text-[11px] md:text-xs text-[#A79E8F] font-medium break-keep px-4 -mt-2 md:mt-0">
+        {CREDIT_LINE}
+      </p>
     </div>
   );
 };

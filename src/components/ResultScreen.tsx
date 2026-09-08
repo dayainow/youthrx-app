@@ -9,7 +9,7 @@ import { buildQrUrl } from '../engine/qr';
 import { getResultBase, isLoopbackUrl } from '../engine/config';
 import { Dialog } from './Dialog';
 import { PolicyInfo } from './PolicyInfo';
-import { ICONS } from '../engine/content';
+import { CREDIT_LINE, ICONS } from '../engine/content';
 import type { Answers, Prescription } from '../engine/types';
 
 interface Props {
@@ -251,11 +251,16 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
               </div>
             </div>
           </div>
+
+          {/* 제작 크레딧 (베타 피드백 #3) */}
+          <p className="mt-4 text-center text-[11px] md:text-xs text-[#A79E8F] font-medium break-keep px-2">
+            {CREDIT_LINE}
+          </p>
         </div>
       </div>
-      
-      {/* Floating Action Buttons */}
-      <div className="flex gap-3 mt-auto bg-[#F4EFE6] p-4 md:px-8 md:py-5 z-30 relative shrink-0 border-t border-[#E8E1D5]">
+
+      {/* Floating Action Buttons — 하단 배지가 버튼을 가리지 않도록 여백을 둔다 (베타 피드백 #8) */}
+      <div className="flex gap-3 mt-auto bg-[#F4EFE6] px-4 pt-4 pb-[max(2rem,env(safe-area-inset-bottom))] md:px-8 md:pt-5 md:pb-5 z-30 relative shrink-0 border-t border-[#E8E1D5]">
         <button 
           onClick={onReset} 
           className="flex-1 bg-white border border-[#E8E1D5] text-[#3E3A39] font-bold py-4 px-3 md:px-4 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-sm active:scale-[0.98]"

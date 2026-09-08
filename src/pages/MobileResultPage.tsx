@@ -8,7 +8,7 @@ import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 import mapoLogo from "../assets/mapo_logo.png";
 import { restoreFromUrl } from "../engine/qr";
-import { ICONS } from "../engine/content";
+import { CREDIT_LINE, ICONS } from "../engine/content";
 
 const MobileResultContent = ({
   prescription,
@@ -282,6 +282,11 @@ const MobileResultContent = ({
                     완료
                   </div>
                 </div>
+
+                {/* 제작 크레딧 (베타 피드백 #3) */}
+                <p className="mt-5 text-center text-[11px] text-[#A79E8F] font-medium break-keep">
+                  {CREDIT_LINE}
+                </p>
               </div>
             </div>
           </div>

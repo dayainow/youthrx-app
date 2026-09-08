@@ -34,6 +34,22 @@ export const PILL_NAMES: Record<Series, Pill[]> = {
   ],
 };
 
+/**
+ * 제작 참여 크레딧 (베타 피드백 #3).
+ * 로딩·시작·결과 화면이 같은 문구를 쓰도록 한곳에서 관리한다.
+ * 개인 이름을 넣으려면 이 배열만 고치면 된다.
+ */
+export const CREDITS = [
+  '서울청년센터 마포',
+  '아트앤쉐어링',
+  '올라',
+  '드림잇 수어스터디',
+  '아일랜드 춤과 음악',
+] as const;
+
+/** 화면 하단·구석에 한 줄로 적는 크레딧 문구 */
+export const CREDIT_LINE = `만든 사람들 · ${CREDITS.join(', ')}`;
+
 /** 화면 공통 아이콘 */
 export const ICONS = {
   /** 인트로 알약 */

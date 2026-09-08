@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import loadingChick from '../assets/mapo-chick-loading.png';
 import { CHAT } from '../engine/chatScript';
+import { CREDIT_LINE } from '../engine/content';
 
 export const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   // 조제 중 문구를 번갈아 보여준다 (구현안내서 3절)
@@ -42,7 +43,7 @@ export const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
       </div>
 
       <div className="absolute bottom-6 left-0 right-0 text-center text-xs text-gray-400 font-medium px-4 break-keep">
-        서울청년센터마포, 아트앤쉐어링, 올라, 드림잇 수어스터디, 아일랜드 춤과음악
+        {CREDIT_LINE}
       </div>
     </div>
   );
