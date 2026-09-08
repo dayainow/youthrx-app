@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import type { Answers } from '../engine/types';
 import mapoLogo from '../assets/mapo_logo.png';
-import { CHAT, QUESTION_ORDER, randomOf } from '../engine/chatScript';
+import { CHAT, QUESTION_ORDER, ackFor, randomOf } from '../engine/chatScript';
 import { STEP_FIRST_QUESTION } from '../hooks/usePrescription';
 
 interface Props {
@@ -17,6 +17,8 @@ type Message = {
   id: string;
   sender: 'pharmacist' | 'user';
   text: string;
+  /** 이 대사가 속한 문항. '이전 질문'으로 돌아올 때 그 뒤 대화를 걷어내는 데 쓴다. */
+  step: number;
 };
 
 /**
@@ -47,23 +49,33 @@ export const QuestionScreen = ({ step, answers, onAnswer, onPrevious, onReset }:
   useEffect(() => {
     if (!question) return;
     const timers: ReturnType<typeof setTimeout>[] = [];
-    const greeting = index === 0 ? randomOf(CHAT.greeting) : [randomOf(CHAT.ack)];
-    const lines = [...greeting, question.prompts[0]];
+    // 맞장구는 방금 고른 답에 대한 반응이므로 직전 문항의 답을 보고 고른다.
+    const previous = index > 0 ? QUESTION_ORDER[index - 1] : undefined;
+    const opening =
+      index === 0
+        ? randomOf(CHAT.greeting)
+        : [ackFor(previous?.key, previous ? answers[previous.key as keyof Answers] : undefined)];
+    const lines = [...opening, question.prompts[0]];
     lines.forEach((text, i) => {
       timers.push(setTimeout(() => {
-        setMessages((prev) => [...prev, { id: `${step}-${i}`, sender: 'pharmacist', text }]);
+        setMessages((prev) => [
+          // 되돌아온 문항이면 그 문항부터의 옛 대화를 걷어내고 다시 시작한다.
+          // (걷어내지 않으면 같은 질문이 아래에 또 쌓이고 id 도 겹친다.)
+          ...(i === 0 ? prev.filter((m) => m.step < step) : prev),
+          { id: `${step}-${i}`, sender: 'pharmacist', text, step },
+        ]);
         if (i === lines.length - 1) { setIsTyping(false); setShowOptions(true); }
       }, 350 + i * 550));
     });
     return () => { timers.forEach(clearTimeout); clearTimeout(answerTimer.current); };
-  }, [step, index, question]);
+  }, [step, index, question, answers]);
 
   const handleSelect = (label: string, emoji: string, value: string | null) => {
     if (!showOptions || !question || selecting.current) return;
     selecting.current = true;
     setIsSelecting(true);
     setShowOptions(false);
-    setMessages((prev) => [...prev, { id: Math.random().toString(), sender: 'user', text: `${emoji} ${label}` }]);
+    setMessages((prev) => [...prev, { id: `${step}-answer`, sender: 'user', text: `${emoji} ${label}`, step }]);
     answerTimer.current = setTimeout(() => onAnswer(question.key, value as string), 350);
   };
 
