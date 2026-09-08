@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { RefreshCw, ChevronRight, X } from 'lucide-react';
+import { RefreshCw, ChevronRight, X, ExternalLink } from 'lucide-react';
 import mapoLogo from '../assets/mapo_logo.png';
 import { useInView } from '../hooks/useInView';
 import { QRCodeSVG } from 'qrcode.react';
@@ -193,8 +193,9 @@ export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
                             <span className="mr-1.5 opacity-80">🕒</span> {getDosageText(idx)}
                           </div>
                         </div>
-                        <div className="text-[#95A5A6] group-hover:text-[#D35400] transition-colors pl-2">
-                          <ChevronRight className="w-5 h-5" />
+                        <div className="text-[#95A5A6] group-hover:text-[#D35400] transition-colors pl-2 flex flex-col items-center">
+                          <ExternalLink className="w-5 h-5 mb-1" />
+                          <span className="text-[10px] font-bold">새 탭 열기</span>
                         </div>
                       </div>
                     </a>

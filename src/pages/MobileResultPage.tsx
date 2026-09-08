@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import type { Prescription } from "../engine/types";
 import { useResultImage } from "../hooks/useResultImage";
 import { PolicyInfo } from "../components/PolicyInfo";
-import { Download, Share2 } from "lucide-react";
+import { Download, Share2, ExternalLink } from "lucide-react";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 import mapoLogo from "../assets/mapo_logo.png";
@@ -221,7 +221,9 @@ const MobileResultContent = ({
                           rel="noopener noreferrer"
                           className="flex justify-between items-center text-sm font-bold text-[#8B4513] mt-3 pt-3 border-t border-[#E8E1D5] min-h-11"
                         >
-                          공식 안내 보기<span aria-hidden="true">↗</span>
+                          <span className="flex items-center">
+                            공식 안내 보기 <ExternalLink className="w-4 h-4 ml-1.5" />
+                          </span>
                           <span className="sr-only">(새 탭)</span>
                         </a>
                         <details
