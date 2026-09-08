@@ -18,7 +18,7 @@ const MobileResultContent = ({
   const prescriptionRef = useRef<HTMLDivElement>(null);
   const { width, height } = useWindowSize();
 
-  const { policies, main, sub } = prescription;
+  const { policies, main } = prescription;
 
   const dateStr = new Date(
     `${prescription.issuedOn}T12:00:00+09:00`,

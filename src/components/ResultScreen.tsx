@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { RefreshCw, ChevronRight, X, ExternalLink } from 'lucide-react';
+import { RefreshCw, X, ExternalLink } from 'lucide-react';
 import mapoLogo from '../assets/mapo_logo.png';
 import { useInView } from '../hooks/useInView';
 import { QRCodeSVG } from 'qrcode.react';
@@ -19,7 +19,7 @@ interface Props {
 }
 
 export const ResultScreen = ({ prescription, answers, onReset }: Props) => {
-  const { policies, main, sub } = prescription;
+  const { policies, main } = prescription;
   const dateStr = new Date(`${prescription.issuedOn}T12:00:00+09:00`).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric' });
   const [showQR, setShowQR] = useState(false);
   // QR 은 링크를 그림으로 그리는 순수 계산이라 인터넷 없이 만들어진다.
