@@ -333,7 +333,7 @@ export const POLICIES: Policy[] = [
     support: '일상회복 프로그램, 관계 형성 활동, 사례관리',
     period: '상시 (기관별 확인)',
     reason: '사람 만나는 일이 부담스러워진 청년에게',
-    url: 'https://youth.seoul.go.kr/youthConts.do?key=2310100062',
+    url: 'https://youth.seoul.go.kr/youthConts.do?key=2310100062&sc_pbancSeCd=008&sc_bbsStngSn=2212200001&sc_bbsCtgrySn=2310200007&sc_qnaCtgryCd=&sc_faqCtgryCd=013',
     direction: '마음',
     ages: [...ALL],
     situations: ['휴식', '취업준비생'],
@@ -341,7 +341,7 @@ export const POLICIES: Policy[] = [
   {
     id: 'MN03',
     series: '심리',
-    title: '서울 청년센터 (오랑)',
+    title: '서울 청년센터',
     target: '서울 거주·활동 청년 누구나',
     support: '진로·생활 상담, 공간 이용, 커뮤니티 프로그램',
     period: '상시',
