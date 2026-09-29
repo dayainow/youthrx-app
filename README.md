@@ -13,7 +13,7 @@
 
 | 시작 화면 | 질문 화면 | 진단 중 | 결과 처방전 |
 |:---:|:---:|:---:|:---:|
-| <img src="images/screen_intro.png" width="200" alt="시작 화면"> | <img src="images/screen_q1_v2.png" width="200" alt="질문 화면"> | <img src="images/screen_loading_v2.png" width="200" alt="진단 화면"> | <img src="images/screen_result_v2.png" width="200" alt="결과 화면"> |
+| <img src="images/screen_intro.png" width="200" alt="시작 화면"> | <img src="images/screen_q1_v2.png" width="200" alt="질문 화면"> | <img src="images/screen_loading_v3.png" width="200" alt="진단 화면"> | <img src="images/screen_result_v2.png" width="200" alt="결과 화면"> |
 
 ## 로컬 실행
 
